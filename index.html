@@ -169,6 +169,13 @@ main{display:flex;flex-direction:column;gap:36px;padding-block:8px 56px}
 .s-fig figcaption{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em}
 .s-end{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .s-end p{margin:0;color:var(--muted)}
+.s-qr{margin:8px auto 0;display:flex;align-items:center;gap:28px;padding:24px 28px;border:1px solid var(--line);border-radius:4px;background:var(--surface);max-width:560px;width:100%}
+.s-qr img{width:180px;height:180px;flex:none;display:block}
+.s-qr figcaption{display:flex;flex-direction:column;gap:6px}
+.s-qr b{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.1}
+.s-qr span{color:var(--muted)}
+.s-qr a{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--teal)}
+@media (max-width:520px){.s-qr{flex-direction:column;text-align:center}}
 .promo{position:relative;display:flex;align-items:flex-end;width:100%;min-height:240px;padding:0;border:0;border-radius:14px;overflow:hidden;cursor:pointer;text-align:left;background:var(--band);color:var(--on-band)}
 .promo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
 .promo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,18,10,.88) 0%,rgba(12,18,10,.6) 50%,rgba(12,18,10,.1) 100%)}
@@ -674,7 +681,7 @@ en:{tab:"Our story",kicker:"A story of hope",title:"Eco-Anxiety",dek:"The challe
  meta:"6 chapters · about 4 minutes",read:"Read the story",back:"← Back to the films",
  promo:"Before you press play",promoSub:"Eco-anxiety is real. So is the way through it.",
  cap0:"Canoeing the Moisie River, Côte-Nord, Québec",
- end:"Start with one film tonight",endSub:"Every title you watch moves the sun a little closer to hope.",
+ end:"Start with one film tonight",endSub:"Every title you watch moves the sun a little closer to hope.",qr:"Share the Hope Library",qrSub:"Scan to open it on your phone",
  chapters:[
  {h:"The weight",b:[
   "You close the news, put your phone down, and something stays with you. Fires, floods, species gone. A future that seems to shrink a little more every year.",
@@ -717,7 +724,7 @@ fr:{tab:"Notre histoire",kicker:"Un récit d'espoir",title:"L'écoanxiété",dek
  meta:"6 chapitres · environ 4 minutes",read:"Lire le récit",back:"← Retour aux films",
  promo:"Avant d'appuyer sur lecture",promoSub:"L'écoanxiété est réelle. Le chemin pour la traverser aussi.",
  cap0:"En canot sur la rivière Moisie, Côte-Nord, Québec",
- end:"Commencez par un film ce soir",endSub:"Chaque titre regardé rapproche un peu le soleil de l'espoir.",
+ end:"Commencez par un film ce soir",endSub:"Chaque titre regardé rapproche un peu le soleil de l'espoir.",qr:"Partagez la Hope Library",qrSub:"Scannez pour l'ouvrir sur votre téléphone",
  chapters:[
  {h:"Le poids",b:[
   "On ferme les nouvelles, on dépose le téléphone, et quelque chose reste. Des feux, des inondations, des espèces disparues. Un avenir qui semble rétrécir un peu chaque année.",
@@ -786,6 +793,7 @@ function renderStory(){
     ${S.chapters.map((c,i)=>`<section class="s-ch" id="ch-${i}"><div class="s-ch-h">${sunMark(i,n)}<h2>${esc(c.h)}</h2></div>${c.b.map(storyBlock).join("")}</section>`).join("")}
     <blockquote class="pull final"><p>${esc(S.final.q).replace(/\.\s+/,".<br><span style=\"color:var(--gold)\">")+(/\.\s/.test(S.final.q)?"</span>":"")}</p>${S.final.by?`<cite>${esc(S.final.by)}</cite>`:""}</blockquote>
     <div class="s-end"><button class="btn solid" data-go="home">▶ ${esc(S.end)}</button><p>${esc(S.endSub)}</p></div>
+    <figure class="s-qr"><img src="img/qr.png" alt="QR code: hopelibrary.github.io" width="220" height="220"><figcaption><b>${esc(S.qr)}</b><span>${esc(S.qrSub)}</span><a href="https://hopelibrary.github.io">hopelibrary.github.io</a></figcaption></figure>
   </article>`;
 }
 function storyPromo(){
