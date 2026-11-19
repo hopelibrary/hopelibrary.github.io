@@ -169,13 +169,7 @@ main{display:flex;flex-direction:column;gap:36px;padding-block:8px 56px}
 .s-fig figcaption{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em}
 .s-end{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .s-end p{margin:0;color:var(--muted)}
-.s-qr{margin:8px auto 0;display:flex;align-items:center;gap:28px;padding:24px 28px;border:1px solid var(--line);border-radius:4px;background:var(--surface);max-width:560px;width:100%}
-.s-qr img{width:180px;height:180px;flex:none;display:block}
-.s-qr figcaption{display:flex;flex-direction:column;gap:6px}
-.s-qr b{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.1}
-.s-qr span{color:var(--muted)}
-.s-qr a{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--teal)}
-@media (max-width:520px){.s-qr{flex-direction:column;text-align:center}}
+.s-qr{display:block;margin:24px auto 0;width:min(420px,80vw);height:auto;border-radius:4px}
 .promo{position:relative;display:flex;align-items:flex-end;width:100%;min-height:240px;padding:0;border:0;border-radius:14px;overflow:hidden;cursor:pointer;text-align:left;background:var(--band);color:var(--on-band)}
 .promo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
 .promo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,18,10,.88) 0%,rgba(12,18,10,.6) 50%,rgba(12,18,10,.1) 100%)}
@@ -793,7 +787,7 @@ function renderStory(){
     ${S.chapters.map((c,i)=>`<section class="s-ch" id="ch-${i}"><div class="s-ch-h">${sunMark(i,n)}<h2>${esc(c.h)}</h2></div>${c.b.map(storyBlock).join("")}</section>`).join("")}
     <blockquote class="pull final"><p>${esc(S.final.q).replace(/\.\s+/,".<br><span style=\"color:var(--gold)\">")+(/\.\s/.test(S.final.q)?"</span>":"")}</p>${S.final.by?`<cite>${esc(S.final.by)}</cite>`:""}</blockquote>
     <div class="s-end"><button class="btn solid" data-go="home">▶ ${esc(S.end)}</button><p>${esc(S.endSub)}</p></div>
-    <figure class="s-qr"><img src="img/qr.png" alt="QR code: hopelibrary.github.io" width="220" height="220"><figcaption><b>${esc(S.qr)}</b><span>${esc(S.qrSub)}</span><a href="https://hopelibrary.github.io">hopelibrary.github.io</a></figcaption></figure>
+    <img class="s-qr" src="img/qr.png" alt="QR code: hopelibrary.github.io" width="420" height="420">
   </article>`;
 }
 function storyPromo(){
