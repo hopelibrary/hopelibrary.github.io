@@ -59,6 +59,7 @@ button{font:inherit;color:inherit}
 .tabs::-webkit-scrollbar{display:none}
 .tab{white-space:nowrap;border:0;background:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-family:var(--display);font-weight:var(--dw-semi,600);font-size:15px;color:var(--muted);display:inline-flex;gap:6px;align-items:baseline}
 .tab:hover{color:var(--ink)}
+a.tab{text-decoration:none}
 .tab[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--terra);border-radius:0}
 .tab .c{font-family:var(--mono);font-size:11px;font-weight:400}
 .navr{display:flex;gap:10px;align-items:center}
@@ -655,8 +656,8 @@ function renderGrid(){
 /* tabs */
 function renderTabs(){
   const tc={};ITEMS.forEach(i=>tc[i.t]=(tc[i.t]||0)+1);
-  const tabs=[["home",T().tabHome],["story",STORY[state.lang].tab],...Object.keys(TYPES.en).map(t=>["type:"+t,TYPES[state.lang][t]]),["list",T().tabList,saved.size]];
-  $("tabs").innerHTML=tabs.map(([v,l,c])=>`<button class="tab" data-go="${v}" ${state.view===v?'aria-current="page"':""}>${esc(l)}${c!=null?` <span class="c">${c}</span>`:""}</button>`).join("");
+  const tabs=[["home",T().tabHome],["story",STORY[state.lang].tab],["link:lumen/","Play Lumen"],...Object.keys(TYPES.en).map(t=>["type:"+t,TYPES[state.lang][t]]),["list",T().tabList,saved.size]];
+  $("tabs").innerHTML=tabs.map(([v,l,c])=>v.startsWith("link:")?`<a class="tab" href="${v.slice(5)}">${esc(l)}</a>`:`<button class="tab" data-go="${v}" ${state.view===v?'aria-current="page"':""}>${esc(l)}${c!=null?` <span class="c">${c}</span>`:""}</button>`).join("");
 }
 
 /* detail sheet */
