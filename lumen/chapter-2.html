@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
+<script>try{if(localStorage.getItem("hope-lang")==="fr")location.replace("fr/chapter-2.html")}catch(e){}document.addEventListener("click",function(e){var a=e.target.closest("[data-l]");if(a)try{localStorage.setItem("hope-lang",a.dataset.l)}catch(_){}});</script>
 <title>Lumen, Chapter 2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -41,6 +42,7 @@
   --gold: #E0A64A; --teal: #6AAFD0; --terra: #DE7D57; --terra-soft: #47271B; --doom: #5D665F; color-scheme: dark;
 }
 * { box-sizing: border-box; }
+.langsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}.langsw a{font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:999px;color:var(--muted);text-decoration:none}.langsw a[aria-current]{background:var(--ink);color:var(--bg)}.top-r{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 [hidden] { display: none !important; }
 body {
   background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
@@ -135,7 +137,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
 <div class="wrap">
   <header class="top">
     <h1 class="brand">Lumen <em>Chapter 2</em></h1>
-    <span class="kicker">Doom dosage</span>
+    <div class="top-r"><span class="kicker">Doom dosage</span><nav class="langsw" aria-label="Language"><a href="#" data-l="en" aria-current="true">EN</a><a href="fr/chapter-2.html" data-l="fr">FR</a></nav></div>
   </header>
 
   <div class="stage">

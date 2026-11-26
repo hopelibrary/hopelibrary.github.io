@@ -411,6 +411,10 @@ footer{color:var(--muted)}
   <nav class="tabs" id="tabs" aria-label="Sections"></nav>
   <div class="navr">
     <input id="q" class="search" type="search" aria-label="Search">
+    <div class="lang" role="group" aria-label="Language">
+      <button id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+      <button id="lang-fr" data-lang="fr" aria-pressed="false">FR</button>
+    </div>
   </div>
   <div class="meter" id="meter" role="meter" aria-valuemin="0" aria-valuemax="100"><span class="lbl anx" id="m-lo"></span><div class="gauge" id="m-gauge"><span class="track"></span><i></i><span class="sun" id="m-sun" aria-hidden="true"><svg viewBox="0 0 26 26"><path d="M3 20a10 10 0 0 1 20 0z" fill="var(--gold)"/><path d="M1 20h24" stroke="var(--moss)" stroke-width="2.6" stroke-linecap="round"/></svg></span></div><span class="lbl hope" id="m-hi"></span><span class="val" id="m-val" hidden></span></div>
 </header>
@@ -486,7 +490,7 @@ applyDesign(DESIGN);
 
 
 const I18N={
-en:{tabHome:"Home",tabList:"My list",meter:"From doom to hope",lo:"Doom",hi:"Hope",watched:n=>`${n} watched`,levels:["Deep in doom","Doom lifting","Finding hope","Hopeful","Full of hope"],markWatch:"Mark as watched",isWatched:"✓ Watched",rowWatched:"Watched",toastDown:(d,lv)=>`Hope +${d}% · ${lv}`,toastUp:lv=>`Removed from watched · ${lv}`,search:"Search titles…",tagline:"People are already building the future.",
+en:{tabHome:"Home",tabLumen:"Play Lumen",tabList:"My list",meter:"From doom to hope",lo:"Doom",hi:"Hope",watched:n=>`${n} watched`,levels:["Deep in doom","Doom lifting","Finding hope","Hopeful","Full of hope"],markWatch:"Mark as watched",isWatched:"✓ Watched",rowWatched:"Watched",toastDown:(d,lv)=>`Hope +${d}% · ${lv}`,toastUp:lv=>`Removed from watched · ${lv}`,search:"Search titles…",tagline:"People are already building the future.",
  featured:"Editor's pick",info:"More info",explore:"Watch / explore",add:"＋ My list",onlist:"✓ On my list",
  rowList:"My list",rowPicks:"Editor's picks",rowNew:"New releases",rowNewSub:"Out in 2024 or later.",
  rowQc:"Québec <em>&amp;</em> Canada",rowQcSub:"Films from this land about people already living in balance with it. New titles through November 2026.",
@@ -496,7 +500,7 @@ en:{tabHome:"Home",tabList:"My list",meter:"From doom to hope",lo:"Doom",hi:"Hop
  allThemes:"All themes",empty:"Nothing matches yet. Try another word or theme.",emptyList:"Your list is empty. Open any title and add it to your list; it stays in this browser.",
  pick:"Pick",qc:"QC",ca:"CA",close:"Close",principle:"Ecological principle",
  credits:"Photo credits",footer:"Hope Library is a catalogue of documentaries, films and series that show a livable, beautiful future is being built right now. Photos come from Wikimedia Commons under free licences and show the people, places or subjects of each title, never official posters; titles without a photo get a drawn cover. Links go to official sites where possible, otherwise Wikipedia. Your list is saved in this browser only."},
-fr:{tabHome:"Accueil",tabList:"Ma liste",meter:"De la fin du monde à l'espoir",lo:"Fin du monde",hi:"Espoir",watched:n=>`${n} vu${n>1?"s":""}`,levels:["En pleine fin du monde","Le ciel s'éclaircit","L'espoir revient","Plein d'espoir","Débordant d'espoir"],markWatch:"Marquer comme vu",isWatched:"✓ Vu",rowWatched:"Déjà vus",toastDown:(d,lv)=>`Espoir +${d} % · ${lv}`,toastUp:lv=>`Retiré des titres vus · ${lv}`,search:"Chercher un titre…",tagline:"Des gens construisent déjà l'avenir.",
+fr:{tabHome:"Accueil",tabLumen:"Jouer à Lumen",tabList:"Ma liste",meter:"De la fin du monde à l'espoir",lo:"Fin du monde",hi:"Espoir",watched:n=>`${n} vu${n>1?"s":""}`,levels:["En pleine fin du monde","Le ciel s'éclaircit","L'espoir revient","Plein d'espoir","Débordant d'espoir"],markWatch:"Marquer comme vu",isWatched:"✓ Vu",rowWatched:"Déjà vus",toastDown:(d,lv)=>`Espoir +${d} % · ${lv}`,toastUp:lv=>`Retiré des titres vus · ${lv}`,search:"Chercher un titre…",tagline:"Des gens construisent déjà l'avenir.",
  featured:"Coup de cœur",info:"Plus d'infos",explore:"Regarder / découvrir",add:"＋ Ma liste",onlist:"✓ Dans ma liste",
  rowList:"Ma liste",rowPicks:"Coups de cœur de la rédaction",rowNew:"Nouveautés",rowNewSub:"Sortis en 2024 ou après.",
  rowQc:"Québec <em>et</em> Canada",rowQcSub:"Des films d'ici sur des gens qui vivent déjà en équilibre avec le territoire, chacun associé au principe écologique qu'il illustre. De nouveaux titres jusqu'en novembre 2026.",
@@ -519,6 +523,7 @@ const WORDS={fr:[["Since ","Depuis "],["Ongoing","En cours"],["Newsletter","Info
 const state={lang:"en",view:"home",theme:null,q:"",billIdx:0};
 let saved=new Set();
 try{saved=new Set(JSON.parse(localStorage.getItem("hope-saved")||"[]"))}catch(e){}
+try{const l=localStorage.getItem("hope-lang");if(l==="fr"||l==="en")state.lang=l;else if((navigator.language||"").startsWith("fr"))state.lang="fr"}catch(e){}
 /* School edition: English only. */
 let watched=new Set();
 try{watched=new Set(JSON.parse(localStorage.getItem("hope-watched")||"[]"))}catch(e){}
@@ -656,7 +661,7 @@ function renderGrid(){
 /* tabs */
 function renderTabs(){
   const tc={};ITEMS.forEach(i=>tc[i.t]=(tc[i.t]||0)+1);
-  const tabs=[["home",T().tabHome],["story",STORY[state.lang].tab],["link:lumen/","Play Lumen"],...Object.keys(TYPES.en).map(t=>["type:"+t,TYPES[state.lang][t]]),["list",T().tabList,saved.size]];
+  const tabs=[["home",T().tabHome],["story",STORY[state.lang].tab],["link:"+(state.lang==="fr"?"lumen/fr/":"lumen/"),T().tabLumen],...Object.keys(TYPES.en).map(t=>["type:"+t,TYPES[state.lang][t]]),["list",T().tabList,saved.size]];
   $("tabs").innerHTML=tabs.map(([v,l,c])=>v.startsWith("link:")?`<a class="tab" href="${v.slice(5)}">${esc(l)}</a>`:`<button class="tab" data-go="${v}" ${state.view===v?'aria-current="page"':""}>${esc(l)}${c!=null?` <span class="c">${c}</span>`:""}</button>`).join("");
 }
 
@@ -810,14 +815,14 @@ fr:{tab:"Notre histoire",kicker:"Un récit d'espoir",title:"L'écoanxiété",dek
   "Si vous le ressentez aussi, vous n'avez rien de brisé. Vous êtes attentif.",
   {q:"Ce n'est pas un signe de bonne santé que d'être bien adapté à une société profondément malade.",by:"Jiddu Krishnamurti"}]},
  {h:"Regarder en face",b:[
-  "Le premier réflexe est de détourner les yeux. Faire défiler, s'engourdir, se dire que c'est trop gros. Ça marche un temps.",
+  "Mon premier réflexe a été de détourner les yeux. J'ai passé trois ans à éviter de penser à la nature, dans le déni, parce que regarder les faits en face faisait trop mal. La plupart d'entre nous font pareil : on fait défiler, on s'engourdit, on se dit que c'est trop gros. Ça marche un temps, mais ça finit toujours par revenir.",
   {q:"Tout ce qu'on affronte ne peut pas être changé, mais rien ne peut changer tant qu'on ne l'affronte pas.",by:"James Baldwin"},
-  "Toutes les vieilles histoires ont le même tournant. Le héros doit descendre dans le lieu sombre avant que quoi que ce soit change.",
+  "Le voyage du héros est toujours le même. Il faut descendre là où ça fait mal avant que quoi que ce soit puisse changer.",
   {q:"La caverne où tu crains d'entrer renferme le trésor que tu cherches.",by:"Joseph Campbell"}]},
  {h:"La peur ou l'amour",b:[
-  "La peur rapetisse le monde. Elle réclame des murs plus hauts, un coupable, une main plus serrée sur ce qu'on possède. L'amour l'élargit à nouveau. Il rappelle que la rivière en aval est la même rivière, et que l'enfant d'un inconnu est un enfant.",
+  "La peur rapetisse le monde. Elle réclame des murs plus hauts, un coupable, une main plus serrée sur ce qu'on possède. L'amour élargit à nouveau le monde et rend les possibles infinis.",
   {q:"C'est un choix, en ce moment même, entre la peur et l'amour.",by:"Bill Hicks"},
-  "Ce choix ne se fait jamais une seule fois. On le refait chaque matin, par petits gestes : la façon de parler de ceux qui pensent autrement, la façon de passer un après-midi, ce qu'on laisse nourrir notre attention.",]},
+  "Ce choix ne se fait jamais une seule fois. On le refait chaque matin, par petits gestes : la façon de parler de ceux qui voient les choses autrement, ce qu'on laisse nourrir notre attention et ce qu'on choisit de partager.",]},
  {h:"Ce qu'on avait oublié",b:[
   "Longtemps, on nous a dit que la richesse est un chiffre qui doit toujours grimper.",
   {q:"La croissance pour la croissance, c'est l'idéologie de la cellule cancéreuse.",by:"Edward Abbey"},
@@ -827,7 +832,8 @@ fr:{tab:"Notre histoire",kicker:"Un récit d'espoir",title:"L'écoanxiété",dek
   {q:"Je n'ai pas ce genre de richesse. Ma richesse, c'est la vie.",by:"Bob Marley, à qui l'on demandait s'il était riche"}]},
  {h:"Notre chance",b:[
   "Chaque génération hérite d'une tâche. La nôtre est grande : transformer une économie qui dévore la planète en une économie qui la nourrit. Certains jours, ça écrase. D'autres jours, ça ressemble au travail le plus porteur de sens qu'on ait jamais confié à quelqu'un.",
-  "Nous sommes la première génération à voir le portrait complet, grâce aux satellites, aux données et à la science, et la première à avoir les outils pour y répondre. L'énergie propre est maintenant la source d'électricité nouvelle la moins chère presque partout dans le monde. On sait comment réensauvager des terres, et de plus en plus de gens apprennent des façons autochtones d'en prendre soin.",
+  "Nous sommes la première génération à voir le portrait complet, grâce aux satellites, aux données et à la science, et la première à avoir les outils pour y répondre. L'énergie propre est maintenant la source d'électricité nouvelle la moins chère presque partout dans le monde. L'agriculture régénératrice fait ses preuves comme solution de rechange à l'agriculture industrielle, et elle pourrait transformer l'une des industries les plus polluantes en puits de carbone.",
+  {q:"Les systèmes alimentaires causent environ un tiers des émissions mondiales de gaz à effet de serre, mais le sol est le plus grand réservoir de carbone sur la terre ferme, et une agriculture qui le reconstruit pourrait compenser de 5 à 15 % des émissions des combustibles fossiles.",by:"Sources : Crippa et al., 2021 · Lal, 2004"},
   "Les dégâts peuvent être réparés. La couche d'ozone est en voie de se rétablir de notre vivant. Une terre agricole rendue au sauvage se remplit de vie en quelques années.",
   {q:"On ne se baigne jamais deux fois dans le même fleuve, car ce n'est plus le même fleuve, ni le même homme.",by:"Héraclite"},
   "Le monde change sans cesse, et nous aussi. C'est la bonne nouvelle. Rien de ce moment n'est figé.",
@@ -835,9 +841,7 @@ fr:{tab:"Notre histoire",kicker:"Un récit d'espoir",title:"L'écoanxiété",dek
  {h:"Porter l'espoir",b:[
   "L'espoir n'est pas un sentiment qu'on attend. C'est quelque chose qui se pratique, comme un jardin. Certains jours, il pousse haut. D'autres jours, c'est seulement la décision de continuer.",
   "Wangari Maathai, qui a lancé un mouvement ayant planté des dizaines de millions d'arbres au Kenya, aimait raconter une vieille histoire. Une forêt brûle. Les grands animaux restent figés à la lisière. Un minuscule colibri vole jusqu'à la rivière, prend une goutte d'eau dans son bec et la laisse tomber sur le feu, encore et encore. Les autres se moquent et lui demandent ce qu'il croit pouvoir faire.",
-  {q:"Je serai un colibri. Je ferai de mon mieux.",by:"Wangari Maathai"},
-  "Faites une chose qui vous appartient. Plantez, réparez, apprenez un savoir-faire, joignez des gens qui ont à cœur la même chose. Reposez-vous quand il le faut. Le deuil et la joie peuvent habiter la même journée.",
-  {q:"Hier est derrière, demain est un mystère, mais aujourd'hui est un cadeau. C'est pour ça qu'on l'appelle le présent.",by:"Maître Oogway · Kung Fu Panda"}]}
+  {q:"Je serai un colibri. Je ferai de mon mieux.",by:"Wangari Maathai"}]}
  ],
  final:{q:"Nous ne défendons pas la nature. Nous sommes la nature qui se défend.",by:""}}
 };
@@ -899,7 +903,7 @@ function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTim
 function show(){
   const v=state.view,home=v==="home",story=v==="story",about=v==="about";
   $("homeview").hidden=!home;$("gridview").hidden=home||story||about;$("storyview").hidden=!story;$("aboutview").hidden=!about;
-  document.querySelector(".navr").style.display=(story||about)?"none":"";
+  $("q").style.display=(story||about)?"none":"";
   renderTabs();
   if(home){renderBill();renderRows()}else if(story)renderStory();else if(about)renderAbout();else renderGrid();
 }
@@ -909,7 +913,7 @@ function applyI18n(){
   document.documentElement.lang=state.lang;
   document.querySelectorAll("[data-i]").forEach(el=>el.textContent=T()[el.dataset.i]);
   $("q").placeholder=T().search;
-  
+  $("lang-en").setAttribute("aria-pressed",state.lang==="en");$("lang-fr").setAttribute("aria-pressed",state.lang==="fr");
 }
 function renderCredits(){$("credits").innerHTML=ITEMS.filter(i=>PHOTOS[key(i)]).map(i=>{const p=PHOTOS[key(i)];return `<li><b>${esc(title(i))}</b>: <a href="${esc(p.page)}" target="_blank" rel="noopener">${esc(p.file)}</a>${p.artist?" · "+esc(p.artist):""}${p.license?" · "+esc(p.license):""}</li>`}).join("")+STORY_PHOTOS.map(p=>`<li><b>${esc(p.label[state.lang])}</b>: <a href="${esc(p.page)}" target="_blank" rel="noopener">${esc(p.file)}</a> · ${esc(p.artist)} · ${esc(p.license)}</li>`).join("")}
 function renderAll(){applyI18n();renderMeter();renderCredits();show();if(openKey)renderDetail()}

@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<script>try{if(localStorage.getItem("hope-lang")==="en")location.replace("../chapter-3.html")}catch(e){}document.addEventListener("click",function(e){var a=e.target.closest("[data-l]");if(a)try{localStorage.setItem("hope-lang",a.dataset.l)}catch(_){}});</script>
+<title>Lumen, chapitre 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: story card on the left; on the right the town of Lumen under a goal track with its milestones. Same "sunlit stone" palette; gold marks wins. */
+:root {
+  --bg: #EEF1EA;
+  --panel: #F7F8F4;
+  --ink: #1B2A22;
+  --muted: #56645B;
+  --line: #CFD6CB;
+  --stone: #D9DED5;
+  --stone-edge: #A9B3A6;
+  --moss: #3F7A3A;
+  --moss-soft: #CFE0C6;
+  --gold: #C98A2E;
+  --gold-soft: #F3E3C6;
+  --teal: #2C6E8F;
+  --terra: #B4552F;
+  --terra-soft: #F0D9CE;
+  --doom: #7D847E;
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131B16; --panel: #1A241E; --ink: #E5EBE2; --muted: #9DAA9F; --line: #2E3B33;
+    --stone: #27332B; --stone-edge: #4A5A4F; --moss: #7DB66F; --moss-soft: #2C4528;
+    --gold: #E0A64A; --gold-soft: #43341A; --teal: #6AAFD0; --terra: #DE7D57; --terra-soft: #47271B; --doom: #5D665F; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131B16; --panel: #1A241E; --ink: #E5EBE2; --muted: #9DAA9F; --line: #2E3B33;
+  --stone: #27332B; --stone-edge: #4A5A4F; --moss: #7DB66F; --moss-soft: #2C4528;
+  --gold: #E0A64A; --gold-soft: #43341A; --teal: #6AAFD0; --terra: #DE7D57; --terra-soft: #47271B; --doom: #5D665F; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+.langsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}.langsw a{font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:999px;color:var(--muted);text-decoration:none}.langsw a[aria-current]{background:var(--ink);color:var(--bg)}.top-r{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 40px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+.brand { font-family: var(--display); font-size: 2.2rem; font-weight: 600; letter-spacing: 0.01em; margin: 0; line-height: 1; }
+.brand em { font-style: italic; font-weight: 500; color: var(--gold); }
+.kicker { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 22px; align-items: start; }
+@media (max-width: 820px) { .stage { grid-template-columns: minmax(0, 1fr); } .town-col { order: -1; } }
+
+.story { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.steps { display: flex; gap: 6px; }
+.steps button { flex: 1; height: 6px; border-radius: 3px; border: 0; padding: 0; background: var(--line); cursor: pointer; }
+.steps button.done { background: var(--moss-soft); }
+.steps button.on { background: var(--moss); }
+.steps button:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+.step-label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.story h2 { font-family: var(--display); font-weight: 600; font-size: 1.9rem; line-height: 1.1; margin: 0; text-wrap: balance; }
+.story h3 { font-family: var(--display); font-weight: 600; font-size: 1.3rem; line-height: 1.2; margin: 6px 0 0; }
+.story p { margin: 0; max-width: 62ch; }
+.story .body { display: flex; flex-direction: column; gap: 10px; }
+.result { border-left: 3px solid var(--gold); padding: 6px 0 6px 12px; font-weight: 500; }
+.result.win { border-color: var(--moss); }
+.result.loss { border-color: var(--terra); }
+.result:empty { display: none; }
+
+.rules { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+.rules li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.rules .tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.tag.minus { color: var(--terra); }
+.tag.plus { color: var(--moss); }
+.tag.win { color: var(--gold); }
+
+.controls { display: flex; flex-direction: column; gap: 12px; }
+.slider-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+.slider-row label { font-size: 0.88rem; font-weight: 500; }
+.slider-row output { font-family: var(--mono); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.slider-row input { grid-column: 1 / -1; width: 100%; }
+#miles { accent-color: var(--gold); }
+#dose { accent-color: var(--terra); }
+.slider-row.locked { opacity: 0.55; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+button.act, button.ghost { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; cursor: pointer; border: 1px solid transparent; }
+button.act { background: var(--moss); color: var(--bg); }
+button.act:disabled { opacity: 0.5; cursor: default; }
+button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+button.ghost:disabled { opacity: 0.45; cursor: default; }
+button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.nav { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; margin-top: 2px; }
+
+.town-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.townbox { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; position: relative; display: flex; flex-direction: column; gap: 10px; }
+.townhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.townhead .kicker { font-size: 0.68rem; }
+#week { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.goal { display: flex; flex-direction: column; gap: 5px; }
+.goal-top { display: flex; justify-content: space-between; gap: 10px; font-size: 0.82rem; }
+.goal-top b { font-weight: 600; }
+.goal-top span { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+.track { position: relative; height: 12px; border-radius: 6px; background: var(--stone); overflow: hidden; }
+.track .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--moss); transition: width .2s linear; }
+.track .tick { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--panel); }
+.track .tick.hit { background: var(--gold); }
+
+.news { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.card { border-radius: 9px; padding: 7px 10px; font-size: 0.8rem; line-height: 1.35; min-height: 3.2em; display: flex; flex-direction: column; gap: 1px; min-width: 0; border: 1px solid var(--line); color: var(--muted); }
+.card .k { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.card.bad.live { background: var(--terra-soft); border-color: var(--terra); color: var(--ink); }
+.card.bad .k { color: var(--terra); }
+.card.win.live { background: var(--gold-soft); border-color: var(--gold); color: var(--ink); }
+.card.win .k { color: var(--gold); }
+#town { width: 100%; height: auto; display: block; touch-action: manipulation; }
+#town .p { cursor: pointer; }
+#town .p:focus { outline: none; }
+#town .p:focus-visible circle.body { stroke: var(--teal); stroke-width: 3; }
+.tip { position: absolute; left: 14px; right: 14px; bottom: 14px; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; line-height: 1.4; pointer-events: none; }
+.tip b { font-weight: 600; }
+
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat .n { font-family: var(--display); font-size: 1.9rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 0.76rem; color: var(--muted); line-height: 1.3; }
+.stat .bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.stat .bar i { display: block; height: 100%; background: var(--moss); width: 0; transition: width .3s ease; }
+.stat.burn .bar i { background: var(--terra); }
+.stat.wins .bar i { background: var(--gold); }
+
+.lessons { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.lessons li { padding-left: 16px; position: relative; }
+.lessons li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+.recap { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.recap li { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.recap .tag { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.mirror { font-family: var(--display); font-size: 1.45rem; line-height: 1.25; font-style: italic; margin: 4px 0 0; text-wrap: balance; }
+a { color: var(--teal); }
+footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .stat .bar i, .track .fill { transition: none; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">Lumen <em>Chapitre 3</em></h1>
+    <div class="top-r"><span class="kicker">Les petites victoires</span><nav class="langsw" aria-label="Language"><a href="../chapter-3.html" data-l="en">EN</a><a href="#" data-l="fr" aria-current="true">FR</a></nav></div>
+  </header>
+
+  <div class="stage">
+    <section class="story" aria-live="polite">
+      <div class="steps" id="steps" role="tablist" aria-label="Étapes du chapitre"></div>
+      <span class="step-label" id="stepLabel"></span>
+      <h2 id="stepTitle"></h2>
+      <div class="body" id="stepBody"></div>
+      <div class="controls">
+        <div class="slider-row" id="milesRow">
+          <label for="miles">Étapes sur le chemin de l'objectif</label>
+          <output id="milesOut" for="miles">1</output>
+          <input type="range" id="miles" min="1" max="30" step="1" value="1">
+        </div>
+        <div class="slider-row" id="doseRow">
+          <label for="dose">Mauvais titres par semaine</label>
+          <output id="doseOut" for="dose">1,5</output>
+          <input type="range" id="dose" min="0" max="3" step="0.25" value="1.5">
+        </div>
+        <div class="btns">
+          <button class="act" id="run">Jouer une année</button>
+          <button class="ghost" id="reset">Réinitialiser la ville</button>
+        </div>
+      </div>
+      <p class="result" id="result"></p>
+      <div class="nav">
+        <button class="ghost" id="prev">Retour</button>
+        <button class="act" id="next">Suivant</button>
+      </div>
+    </section>
+
+    <div class="town-col">
+      <div class="townbox">
+        <div class="townhead">
+          <span class="kicker">Lumen, visibilité à 70 %</span>
+          <span id="week">Avant le début de l'année</span>
+        </div>
+        <div class="goal">
+          <div class="goal-top"><b>Objectif : Lumen fonctionne à l'énergie propre</b><span id="goalPct">0 %</span></div>
+          <div class="track" id="track"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="news">
+          <div class="card bad" id="badCard"><span class="k">Mauvaise nouvelle</span><span id="badText">Rien pour l'instant</span></div>
+          <div class="card win" id="winCard"><span class="k">Lumen l'a fait</span><span id="winText">Rien pour l'instant</span></div>
+        </div>
+        <svg id="town" role="group" aria-label="Les 60 personnes de Lumen"></svg>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="n" id="sAct">45</span><span class="l">personnes qui agissent</span><div class="bar"><i id="bAct"></i></div></div>
+        <div class="stat burn"><span class="n" id="sBurn">0</span><span class="l">personnes épuisées</span><div class="bar"><i id="bBurn"></i></div></div>
+        <div class="stat wins"><span class="n" id="sWins">0 / 1</span><span class="l">étapes franchies</span><div class="bar"><i id="bWins"></i></div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="src">
+    Lumen est un prototype du projet Hope Library. Le chapitre 3 fait suite au <a href="./">chapitre 1</a> et au <a href="chapter-2.html">chapitre 2</a> : les mêmes 60 personnes, les mêmes cœurs, une visibilité à 70 %. Les titres et les étapes sont inventés pour la ville. Le modèle est un jouet : il montre un mécanisme, pas une prévision.
+  </footer>
+</div>
+
+<script>
+(() => {
+  const C = 10, R = 6, N = C * R, S = 44, CAP = 3, VIS = 0.7, WEEKS = 52, BONUS = 3, BURN_PENALTY = 2;
+  const GOAL = 2000, WIN_SEEN = 2;
+  const SEED = 407;
+
+  function rng(seed) {
+    return () => {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  // Same town as Chapters 1 and 2.
+  function buildTown(seed) {
+    const r = rng(seed);
+    const need = [];
+    for (let i = 0; i < 3; i++) need.push(0);
+    for (let i = 0; i < 36; i++) need.push(1 + Math.floor(r() * 3));
+    for (let i = 0; i < 15; i++) need.push(4 + Math.floor(r() * 2));
+    for (let i = 0; i < 6; i++) need.push(99);
+    for (let i = N - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [need[i], need[j]] = [need[j], need[i]]; }
+    const nb = [];
+    for (let i = 0; i < N; i++) {
+      const x = i % C, y = (i / C) | 0, a = [];
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        a.push(((y + dy + R) % R) * C + (x + dx + C) % C);
+      }
+      nb.push(a);
+    }
+    const notice = [];
+    for (let i = 0; i < N; i++) { notice.push({}); for (const j of nb[i]) notice[i][j] = r(); }
+    return { need, nb, notice };
+  }
+  const T = buildTown(SEED);
+  const kindOf = n => n === 0 ? "steady" : n <= 3 ? "mirror" : n <= 5 ? "waiter" : "doomer";
+  const KIND = { steady: "Le Constant", mirror: "Le Miroir", waiter: "L'Attentiste", doomer: "Le Défaitiste" };
+
+  const BAD = [
+    "L'été le plus chaud jamais enregistré", "Les négociations sur le climat finissent sans accord", "La saison des feux de forêt commence tôt",
+    "Rapport : la cible de 1,5 °C s'éloigne", "Les insectes continuent de disparaître", "Des inondations chassent des milliers de gens de chez eux",
+    "Les glaciers fondent plus vite que prévu", "Le blanchissement des coraux s'étend encore", "Les émissions atteignent un nouveau sommet", "Une troisième année de sécheresse pour les agriculteurs"
+  ];
+  const WINS = [
+    "Des panneaux solaires sur le toit de l'école", "La piste cyclable de la rue Principale ouvre", "La première récolte du jardin communautaire",
+    "La bibliothèque a sa thermopompe", "Une ligne d'autobus vers l'hôpital démarre", "Le café réparation répare son 100e grille-pain",
+    "Le toit de l'aréna passe au solaire", "L'outilthèque ouvre", "L'hôtel de ville passe à l'énergie propre", "Les 50 premières maisons sont isolées",
+    "Une station d'autopartage ouvre au centre-ville", "Les autobus scolaires passent à l'électrique", "La coop éolienne est approuvée",
+    "Le marché fermier fonctionne au solaire", "Le toit de la vieille usine devient un parc solaire", "200 maisons isolées",
+    "Le réseau de chaleur atteint le quartier nord", "Les éoliennes se mettent à tourner", "La dernière fournaise au mazout quitte l'hôtel de ville",
+    "Toutes les écoles fonctionnent à l'énergie propre", "La moitié du chauffage de la ville est électrique", "Le four de la boulangerie passe à l'électrique",
+    "Les lampadaires passent aux DEL et au solaire", "La patinoire roule grâce à la coop éolienne", "Le dernier contrat de charbon de la ville prend fin",
+    "300 maisons isolées", "La caserne de pompiers passe au solaire", "Tous les autobus de la ville sont électriques", "L'hôpital passe à l'énergie propre"
+  ];
+  const winName = (j, K) => j === K ? "Lumen fonctionne à l'énergie propre" : WINS[(j - 1) % WINS.length];
+
+  const st = {
+    step: 0, D: 1.5, K: 1, week: -1, timer: null, ran: false, hover: -1,
+    acting: [], hearts: [], burned: [], hist: [], progress: 0, wins: 0, winNow: 0, lastWin: "", lastBad: "", badNow: 0, badTotal: 0, doneWeek: null
+  };
+
+  function settledStart() {
+    let a = T.need.map(n => n === 0);
+    for (let k = 0; k < 40; k++) {
+      const n = a.map((x, i) => x || T.nb[i].filter(j => a[j] && T.notice[j][i] < VIS).length >= T.need[i]);
+      if (n.every((y, i) => y === a[i])) break;
+      a = n;
+    }
+    return a;
+  }
+  const START = settledStart();
+  const seenCount = i => T.nb[i].filter(j => st.acting[j] && T.notice[j][i] < VIS).length;
+  const perWeek = (rate, w) => Math.floor((w + 1) * rate + 1e-9) - Math.floor(w * rate + 1e-9);
+
+  function init() {
+    st.acting = START.slice();
+    st.hearts = START.map(a => a ? CAP : 0);
+    st.burned = new Array(N).fill(false);
+    st.hist = [st.acting.filter(Boolean).length];
+    st.week = -1; st.progress = 0; st.wins = 0; st.winNow = 0; st.lastWin = ""; st.lastBad = "";
+    st.badNow = 0; st.badTotal = 0; st.doneWeek = null;
+  }
+
+  // One week. Chapter 2's rules, plus: everyone acting adds one week of work to the goal.
+  // When the work crosses a milestone, the whole town sees it the next week:
+  // people acting get a heart back, and everyone counts it like 2 more neighbours seen acting.
+  function step(w) {
+    const H = perWeek(st.D, w);
+    const celebrating = st.winNow > 0;
+    st.badNow = H; st.badTotal += H;
+    if (H) st.lastBad = BAD[(st.badTotal - 1) % BAD.length];
+    const boost = celebrating ? WIN_SEEN : 0;
+    const seen = T.nb.map((_, i) => seenCount(i) + boost);
+    const na = st.acting.slice(), nh = st.hearts.slice();
+    for (let i = 0; i < N; i++) {
+      const need = T.need[i];
+      if (need > 8) continue;
+      const s = seen[i];
+      if (need === 0) { na[i] = true; nh[i] = CAP; continue; }
+      if (st.acting[i]) {
+        const refill = (s >= need ? 1 : 0) + (s >= need + BONUS ? 1 : 0) + (celebrating ? 1 : 0);
+        nh[i] = Math.min(CAP, st.hearts[i] + refill - H);
+        if (nh[i] <= 0) { na[i] = false; nh[i] = 0; st.burned[i] = true; }
+      } else {
+        const bar = need + (st.burned[i] ? BURN_PENALTY : 0) - (H > 0 && !st.burned[i] ? 1 : 0);
+        if (s >= bar) { na[i] = true; nh[i] = CAP; }
+      }
+    }
+    st.acting = na; st.hearts = nh;
+    const n = na.filter(Boolean).length;
+    st.progress = Math.min(GOAL, st.progress + n);
+    const reached = Math.min(st.K, Math.floor(st.progress / GOAL * st.K + 1e-9));
+    st.winNow = reached - st.wins;
+    if (st.winNow > 0) st.lastWin = winName(reached, st.K);
+    st.wins = reached;
+    if (st.progress >= GOAL && st.doneWeek === null) st.doneWeek = w + 1;
+    st.hist.push(n);
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById("town");
+  const NS = "http://www.w3.org/2000/svg";
+  svg.setAttribute("viewBox", `0 0 ${C * S} ${R * S}`);
+  const linkLayer = document.createElementNS(NS, "g");
+  svg.appendChild(linkLayer);
+  const pos = i => [(i % C) * S + S / 2, ((i / C) | 0) * S + S / 2 - 3];
+  const mk = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  const people = [];
+  for (let i = 0; i < N; i++) {
+    const [cx, cy] = pos(i);
+    const kind = kindOf(T.need[i]);
+    const g = mk("g", { class: "p", tabindex: 0, role: "button" }, svg);
+    const r = 11;
+    const halo = mk("circle", { cx, cy, r: r + 4, fill: "none", "stroke-width": 2 }, g);
+    const body = mk("circle", { cx, cy, r, "stroke-width": 1.5, class: "body" }, g);
+    const ring = kind === "waiter" ? mk("circle", { cx, cy, r: r - 4, fill: "none", "stroke-width": 1.2 }, g) : null;
+    const core = kind === "steady" ? mk("circle", { cx, cy, r: 3.2 }, g) : null;
+    const leafL = mk("ellipse", { cx: cx - 3.6, cy: cy - r - 1, rx: 4, ry: 2, transform: `rotate(-35 ${cx - 3.6} ${cy - r - 1})` }, g);
+    const leafR = mk("ellipse", { cx: cx + 3.6, cy: cy - r - 1, rx: 4, ry: 2, transform: `rotate(35 ${cx + 3.6} ${cy - r - 1})` }, g);
+    const dots = [-6, 0, 6].map(dx => mk("circle", { cx: cx + dx, cy: cy + r + 6, r: 2.2, "stroke-width": 1 }, g));
+    g.addEventListener("pointerenter", () => setHover(i));
+    g.addEventListener("pointerleave", () => setHover(-1));
+    g.addEventListener("focus", () => setHover(i));
+    g.addEventListener("blur", () => setHover(-1));
+    g.addEventListener("click", () => setHover(i));
+    people.push({ g, halo, body, ring, core, leafL, leafR, dots, kind });
+  }
+
+  function paintPerson(i) {
+    const p = people[i], a = st.acting[i], b = st.burned[i] && !a, h = st.hearts[i];
+    const stone = css("--stone"), edge = css("--stone-edge"), moss = css("--moss"), soft = css("--moss-soft");
+    const gold = css("--gold"), doom = css("--doom"), terra = css("--terra"), terraSoft = css("--terra-soft");
+    p.body.setAttribute("fill", a ? soft : b ? terraSoft : (p.kind === "doomer" ? doom : stone));
+    p.body.setAttribute("stroke", a ? moss : b ? terra : edge);
+    p.halo.setAttribute("stroke", a && st.winNow > 0 ? gold : "transparent");
+    if (p.ring) p.ring.setAttribute("stroke", a ? moss : b ? terra : edge);
+    if (p.core) p.core.setAttribute("fill", gold);
+    const leaf = a ? moss : "transparent";
+    p.leafL.setAttribute("fill", leaf); p.leafR.setAttribute("fill", leaf);
+    p.dots.forEach((d, k) => {
+      d.setAttribute("fill", a && k < h ? (h === 1 ? terra : moss) : "transparent");
+      d.setAttribute("stroke", a ? (h === 1 ? terra : moss) : "transparent");
+    });
+    const state = a ? `Agit, ${h} cœurs sur 3.` : b ? "Épuisé." : "N'agit pas.";
+    p.g.setAttribute("aria-label", `${KIND[p.kind]}. ${state}`);
+  }
+
+  function drawLinks() {
+    linkLayer.innerHTML = "";
+    const i = st.hover;
+    if (i < 0) return;
+    const [x1, y1] = pos(i);
+    for (const j of T.nb[i]) {
+      const [x2, y2] = pos(j);
+      if (Math.abs(x2 - x1) > S * 1.5 || Math.abs(y2 - y1) > S * 1.5) continue;
+      const seen = st.acting[j] && T.notice[j][i] < VIS, act = st.acting[j];
+      mk("line", { x1, y1, x2, y2, stroke: seen ? css("--gold") : act ? css("--muted") : css("--line"),
+        "stroke-width": seen ? 3 : 1.5, "stroke-dasharray": seen ? "none" : "4 4", "stroke-linecap": "round" }, linkLayer);
+    }
+  }
+
+  const tip = document.getElementById("tip");
+  function setHover(i) {
+    st.hover = i;
+    drawLinks();
+    if (i < 0) { tip.hidden = true; return; }
+    const p = people[i], n = T.need[i], s = seenCount(i);
+    let line;
+    if (p.kind === "doomer") line = "N'embarque jamais. Une victoire, c'est « trop peu, trop tard ».";
+    else if (p.kind === "steady") line = "Agit selon ses valeurs, victoire ou pas.";
+    else if (st.acting[i]) line = `Agit, ${st.hearts[i]} cœurs sur 3. Voit ${s} voisins agir et il lui en faut ${n}. Une étape franchie lui redonne un cœur.`;
+    else if (st.burned[i]) line = `Épuisé. Pour revenir, il doit maintenant voir ${n + BURN_PENALTY} voisins agir. Une étape franchie compte pour 2. Il en voit ${s}.`;
+    else line = `N'agit pas encore. Doit voir ${n} voisins agir, en voit ${s}. Une étape franchie compte pour 2 de plus.`;
+    tip.innerHTML = `<b>${KIND[p.kind]}</b>. ${line}`;
+    tip.hidden = false;
+  }
+
+  const track = document.getElementById("track"), fill = document.getElementById("fill");
+  function drawTicks() {
+    track.querySelectorAll(".tick").forEach(t => t.remove());
+    for (let j = 1; j < st.K; j++) {
+      const t = document.createElement("div");
+      t.className = "tick";
+      t.style.left = (j / st.K * 100) + "%";
+      track.appendChild(t);
+    }
+  }
+
+  function paint() {
+    for (let i = 0; i < N; i++) paintPerson(i);
+    drawLinks();
+    if (st.hover >= 0) setHover(st.hover);
+    const nAct = st.acting.filter(Boolean).length;
+    const nBurn = st.burned.filter((b, i) => b && !st.acting[i]).length;
+    document.getElementById("sAct").textContent = nAct;
+    document.getElementById("bAct").style.width = (nAct / N * 100) + "%";
+    document.getElementById("sBurn").textContent = nBurn;
+    document.getElementById("bBurn").style.width = (nBurn / N * 100) + "%";
+    document.getElementById("sWins").textContent = `${st.wins} / ${st.K}`;
+    document.getElementById("bWins").style.width = (st.wins / st.K * 100) + "%";
+    const pct = st.progress / GOAL * 100;
+    document.getElementById("goalPct").textContent = Math.floor(pct) + " %";
+    fill.style.width = pct + "%";
+    track.querySelectorAll(".tick").forEach((t, j) => t.classList.toggle("hit", j + 1 <= st.wins));
+    document.getElementById("week").textContent = st.week < 0 ? "Avant le début de l'année" : `Semaine ${st.week + 1} sur ${WEEKS}`;
+    document.getElementById("badText").textContent = st.lastBad ? (st.badNow > 1 ? `${st.lastBad} (+${st.badNow - 1} autre${st.badNow > 2 ? "s" : ""})` : st.lastBad) : (st.D ? "Rien pour l'instant" : "Aucune cette année");
+    document.getElementById("winText").textContent = st.lastWin || "Rien pour l'instant";
+    document.getElementById("badCard").classList.toggle("live", st.badNow > 0);
+    document.getElementById("winCard").classList.toggle("live", st.winNow > 0);
+  }
+
+  // ---------- running ----------
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function stop() { if (st.timer) { clearInterval(st.timer); st.timer = null; } }
+  function resetTown() { stop(); init(); drawTicks(); st.ran = false; setResult(""); paint(); updateButtons(); }
+  function runYear() {
+    stop(); init(); drawTicks(); st.ran = true; st.week = 0;
+    step(0); paint();
+    st.timer = setInterval(() => {
+      st.week++;
+      step(st.week);
+      if (st.week >= WEEKS - 1 || st.doneWeek !== null) { stop(); finish(); }
+      paint();
+    }, reduced ? 40 : 230);
+    updateButtons();
+  }
+  function finish() {
+    st.badNow = 0;
+    const s = STEPS[st.step];
+    if (s.onFinish) setResult(...[].concat(s.onFinish()));
+    updateButtons();
+  }
+  const resultEl = document.getElementById("result");
+  function setResult(text, tone) {
+    resultEl.textContent = text || "";
+    resultEl.classList.toggle("win", tone === "win");
+    resultEl.classList.toggle("loss", tone === "loss");
+  }
+
+  // ---------- story ----------
+  const end = () => st.hist[st.hist.length - 1];
+  const pctDone = () => Math.floor(st.progress / GOAL * 100);
+  const fmt = x => (Math.round(x * 100) / 100).toString().replace(".", ",");
+  const outcome = () => st.doneWeek !== null
+    ? [`Objectif atteint à la semaine ${st.doneWeek}, avec ${end()} personnes qui agissent encore. ${st.K} étapes, ${st.K} fois où toute la ville a vu que ça marchait.`, "win"]
+    : [`L'année se termine à ${pctDone()} % de l'objectif, avec ${end()} personnes qui agissent. ${st.wins} étapes franchies sur ${st.K}.`, "loss"];
+
+  const RULES = `<ul class="rules">
+      <li><span class="tag minus">Mauvais titre</span><span>Toujours 1,5 titre par semaine. Chacun coûte un cœur à tous ceux qui agissent.</span></li>
+      <li><span class="tag plus">Travail</span><span>Chaque personne qui agit ajoute une semaine de travail à l'objectif.</span></li>
+      <li><span class="tag win">Étape</span><span>Quand le travail franchit une étape, toute la ville le voit : tous ceux qui agissent récupèrent un cœur, et pendant une semaine ça compte comme 2 voisins de plus qui agissent.</span></li>
+    </ul>`;
+
+  const STEPS = [
+    {
+      title: "Un objectif qui en vaut la peine",
+      body: `<p>Lumen se donne un vrai objectif : <b>faire fonctionner toute la ville à l'énergie propre</b>. Il faudra <b>2 000 semaines de travail</b>. Avec 45 personnes qui agissent, ça fait environ 44 semaines : ça tient dans une année.</p>
+             <p>Les nouvelles ne se sont pas arrêtées. Elles sont à 1,5 mauvais titre par semaine, assez pour couler la ville au chapitre 2.</p>${RULES}`,
+      D: 1.5, K: 1, miles: false, dose: false, run: false
+    },
+    {
+      title: "Un seul grand bond",
+      body: `<p>Lumen s'y prend de la façon classique : un seul grand objectif, et on célèbre à la fin. La barre de progression est le seul signe que quelque chose se passe.</p>
+             <p>Jouez une année.</p>`,
+      D: 1.5, K: 1, miles: false, dose: false, run: true,
+      onFinish: () => st.doneWeek !== null ? outcome() :
+        [`L'année se termine à ${pctDone()} % de l'objectif. Les gens ont manqué de cœurs bien avant la ligne d'arrivée, sans jamais voir quoi que ce soit fonctionner.`, "loss"]
+    },
+    {
+      title: "Découper en victoires",
+      body: `<p>Même objectif, même travail, mêmes nouvelles. Seul changement : découper la route en étapes, comme des panneaux solaires sur l'école ou une nouvelle piste cyclable. Chacune est réelle, terminée et visible.</p>
+             <p>Combien d'étapes faut-il à Lumen pour y arriver ?</p>`,
+      D: 1.5, K: 1, miles: true, dose: false, run: true,
+      onFinish: () => {
+        if (st.doneWeek !== null) return [`${st.K} étapes : objectif atteint à la semaine ${st.doneWeek}. Le grand objectif n'a pas changé. La ville a simplement pu sentir, en chemin, que ça marchait.`, "win"];
+        if (st.K === 1) return outcome();
+        return [`${st.K} étapes : ${pctDone()} % de l'objectif. Les victoires arrivaient trop loin l'une de l'autre pour recharger les cœurs. Essayez-en plus.`, "loss"];
+      }
+    },
+    {
+      title: "À vous de jouer",
+      body: `<p>Les deux curseurs sont à vous.</p>
+             <p>Un défi : à <b>2 mauvais titres par semaine</b>, la tempête qui a vidé Lumen au chapitre 2, pouvez-vous quand même mener la ville à l'énergie propre en un an ?</p>`,
+      D: 2, K: 1, miles: true, dose: true, run: true,
+      onFinish: () => {
+        const r = outcome();
+        if (st.doneWeek !== null && st.D >= 2) r[0] = `Réussi à la semaine ${st.doneWeek} sous ${fmt(st.D)} titres par semaine, avec ${st.K} étapes. ` + r[0].split(". ").slice(1).join(". ");
+        return r;
+      }
+    },
+    {
+      title: "Les petites victoires mènent aux grands objectifs",
+      body: `<ul class="lessons">
+               <li><b>Un objectif qui ne récompense qu'à la fin demande aux gens d'avancer à vide.</b></li>
+               <li><b>Les petites victoires ne remplacent pas le grand objectif.</b> Même ville, même travail, mêmes nouvelles : un seul grand objectif a calé à 33 %, alors qu'une douzaine d'étapes ont mené Lumen au but à la semaine 40, avec 47 personnes encore en mouvement.</li>
+               <li><b>Une victoire n'aide que si les gens la voient.</b> C'est encore le chapitre 1.</li>
+             </ul>
+             <h3>Lumen en trois leçons</h3>
+             <ul class="recap">
+               <li><span class="tag">Chapitre 1</span><span>L'espoir se propage par le regard. La plupart des gens s'en soucient déjà. Ils ne se voient simplement pas.</span></li>
+               <li><span class="tag">Chapitre 2</span><span>La peur est un signal, pas un carburant. L'espoir se recharge en voyant des gens agir.</span></li>
+               <li><span class="tag">Chapitre 3</span><span>Les petites victoires gardent les gens en mouvement jusqu'au grand objectif.</span></li>
+             </ul>
+             <p class="mirror">Vous êtes un Miroir, vous aussi. Quelque part près de vous, quelqu'un que le climat préoccupe attend de voir une personne de plus agir. Que vous voit-il faire ?</p>
+             <p>La <a href="/">Hope Library</a> rassemble des films sur des gens qui agissent déjà. Commencez là.</p>`,
+      D: 1.5, K: 12, miles: true, dose: true, run: true,
+      onFinish: () => outcome()
+    }
+  ];
+
+  const stepsEl = document.getElementById("steps");
+  STEPS.forEach((s, k) => {
+    const b = document.createElement("button");
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-label", `Étape ${k + 1} : ${s.title}`);
+    b.addEventListener("click", () => go(k));
+    stepsEl.appendChild(b);
+  });
+
+  const miles = document.getElementById("miles"), dose = document.getElementById("dose");
+  const milesOut = document.getElementById("milesOut"), doseOut = document.getElementById("doseOut");
+  function syncSliders() { milesOut.textContent = st.K; doseOut.textContent = fmt(st.D); miles.value = st.K; dose.value = st.D; }
+  miles.addEventListener("input", () => { st.K = +miles.value; syncSliders(); if (!st.timer) resetTown(); });
+  dose.addEventListener("input", () => { st.D = +dose.value; syncSliders(); if (!st.timer) resetTown(); });
+
+  function updateButtons() {
+    const s = STEPS[st.step];
+    const run = document.getElementById("run");
+    run.hidden = !s.run;
+    document.getElementById("reset").hidden = !s.run;
+    run.disabled = !!st.timer;
+    run.textContent = st.ran ? "Rejouer" : "Jouer une année";
+    miles.disabled = !s.miles || !!st.timer;
+    dose.disabled = !s.dose || !!st.timer;
+    document.getElementById("prev").disabled = st.step === 0;
+    document.getElementById("next").disabled = st.step === STEPS.length - 1;
+    document.getElementById("next").textContent = st.step === STEPS.length - 2 ? "Terminer" : "Suivant";
+  }
+
+  function go(k) {
+    k = Math.max(0, Math.min(STEPS.length - 1, k));
+    st.step = k;
+    const s = STEPS[k];
+    document.getElementById("stepLabel").textContent = `Étape ${k + 1} sur ${STEPS.length}`;
+    document.getElementById("stepTitle").textContent = s.title;
+    document.getElementById("stepBody").innerHTML = s.body;
+    [...stepsEl.children].forEach((b, j) => { b.className = j === k ? "on" : j < k ? "done" : ""; b.setAttribute("aria-selected", j === k); });
+    st.D = s.D; st.K = s.K; syncSliders();
+    document.getElementById("milesRow").hidden = k < 2;
+    document.getElementById("doseRow").hidden = k < 3;
+    document.getElementById("milesRow").classList.toggle("locked", !s.miles);
+    document.getElementById("doseRow").classList.toggle("locked", !s.dose);
+    resetTown();
+  }
+
+  document.getElementById("run").addEventListener("click", runYear);
+  document.getElementById("reset").addEventListener("click", resetTown);
+  document.getElementById("prev").addEventListener("click", () => go(st.step - 1));
+  document.getElementById("next").addEventListener("click", () => go(st.step + 1));
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint);
+  new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+
+  go(0);
+})();
+</script>
+</body>
+</html>
