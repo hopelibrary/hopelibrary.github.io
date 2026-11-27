@@ -90,6 +90,8 @@ button.act, button.ghost {
 }
 button.act { background: var(--moss); color: var(--bg); }
 button.act:disabled { opacity: 0.5; cursor: default; }
+a.act { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; background: var(--moss); color: var(--bg); text-decoration: none; display: inline-block; }
+a.act:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 .nav { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; margin-top: 2px; }
@@ -102,6 +104,9 @@ button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--
 #town { width: 100%; height: auto; display: block; touch-action: manipulation; }
 #town .p { cursor: pointer; }
 #town .p:focus-visible circle.body { stroke: var(--teal); stroke-width: 3; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 0.76rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend svg { width: 18px; height: 18px; flex: none; }
 .tip { position: absolute; left: 14px; right: 14px; bottom: 14px; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; line-height: 1.4; pointer-events: none; }
 .tip b { font-weight: 600; }
 
@@ -151,6 +156,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       <div class="nav">
         <button class="ghost" id="prev">Retour</button>
         <button class="act" id="next">Suivant</button>
+        <a class="act" id="nextChap" href="chapter-2.html" hidden>Chapitre 2 &rarr;</a>
       </div>
     </section>
 
@@ -161,12 +167,21 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
           <span id="week">Avant le début de l'année</span>
         </div>
         <svg id="town" role="group" aria-label="Les 60 personnes de Lumen"></svg>
+        <div class="legend" aria-label="Légende">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" style="fill:var(--stone);stroke:var(--stone-edge)" stroke-width="1.5"/></svg>En attente</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14" r="8" style="fill:var(--moss-soft);stroke:var(--moss)" stroke-width="1.5"/><ellipse cx="9.5" cy="5.5" rx="3" ry="1.5" transform="rotate(-35 9.5 5.5)" style="fill:var(--moss)"/><ellipse cx="14.5" cy="5.5" rx="3" ry="1.5" transform="rotate(35 14.5 5.5)" style="fill:var(--moss)"/></svg>Agit</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" style="fill:var(--stone);stroke:var(--stone-edge)" stroke-width="1.5"/><circle cx="12" cy="13" r="2.5" style="fill:var(--gold)"/></svg>Constant</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" style="fill:var(--stone);stroke:var(--stone-edge)" stroke-width="1.5"/><circle cx="12" cy="13" r="5" fill="none" style="stroke:var(--stone-edge)" stroke-width="1.2"/></svg>Attentiste</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" style="fill:var(--doom);stroke:var(--stone-edge)" stroke-width="1.5"/></svg>Défaitiste</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="2" y1="12" x2="22" y2="12" style="stroke:var(--gold)" stroke-width="3" stroke-linecap="round"/></svg>Les voit agir</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="2" y1="12" x2="22" y2="12" style="stroke:var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/></svg>Agit sans être vu</span>
+        </div>
         <div class="tip" id="tip" hidden></div>
       </div>
       <div class="stats">
-        <div class="stat"><span class="n" id="sCare">54</span><span class="l">personnes que le climat préoccupe</span><div class="bar"><i id="bCare"></i></div></div>
-        <div class="stat"><span class="n" id="sAct">0</span><span class="l">personnes qui agissent en ce moment</span><div class="bar"><i id="bAct"></i></div></div>
-        <div class="stat seen" id="statSeen"><span class="n" id="sSeen">0%</span><span class="l">de leurs voisins agissent, selon ce que les gens croient</span><div class="bar"><i id="bSeen"></i></div></div>
+        <div class="stat"><span class="n" id="sCare">90 %</span><span class="l">se soucient du climat (54 sur 60)</span><div class="bar"><i id="bCare"></i></div></div>
+        <div class="stat"><span class="n" id="sAct">0 %</span><span class="l" id="lAct">agissent vraiment (0 sur 60)</span><div class="bar"><i id="bAct"></i></div></div>
+        <div class="stat seen" id="statSeen"><span class="n" id="sSeen">0%</span><span class="l">ce que les gens voient agir autour d'eux</span><div class="bar"><i id="bSeen"></i></div></div>
       </div>
     </div>
   </div>
@@ -352,12 +367,13 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     if (st.hover >= 0) setHover(st.hover);
     const nAct = st.acting.filter(Boolean).length;
     const avgSeen = T.nb.reduce((sum, _, i) => sum + seenCount(i) / 8, 0) / N;
-    document.getElementById("sAct").textContent = nAct;
+    document.getElementById("sAct").textContent = Math.round(nAct / N * 100) + " %";
+    document.getElementById("lAct").textContent = `agissent vraiment (${nAct} sur 60)`;
     document.getElementById("bAct").style.width = (nAct / N * 100) + "%";
     document.getElementById("sSeen").textContent = Math.round(avgSeen * 100) + " %";
     document.getElementById("bSeen").style.width = (avgSeen * 100) + "%";
     document.getElementById("bCare").style.width = (54 / N * 100) + "%";
-    document.getElementById("week").textContent = st.week < 0 ? "Avant le début de l'année" : (st.timer ? `Semaine ${st.week}` : `Semaine ${st.week}, stable`);
+    document.getElementById("week").textContent = st.week < 0 ? "Avant le début de l'année" : (st.timer ? `Semaine ${st.week}` : (nAct >= 54 ? `Semaine ${st.week} : tous ceux qui pouvaient embarquer l'ont fait` : `Bloqué à la semaine ${st.week} : personne d'autre n'embarquera`));
   }
 
   // ---------- running ----------
@@ -440,7 +456,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     },
     {
       label: "4 sur 7", title: "Tout le monde se sent seul",
-      body: `<p>Maintenant, posez-leur la question. Regardez le chiffre doré sous la ville : en moyenne, les gens croient que seule une petite part de leurs voisins agit.</p>
+      body: `<p>Maintenant, posez-leur la question. Comparez les deux derniers chiffres sous la ville : combien de gens agissent vraiment, et combien d'action les gens voient autour d'eux.</p>
              <p>Chacun se sent comme l'exception, et tous se trompent. Le climat préoccupe 90 % d'entre eux. Les chercheurs appellent ça l'<b>ignorance pluraliste</b>. L'espoir était déjà là. Personne ne pouvait le voir.</p>
              <p>Survolez une personne qui n'agit pas. Les lignes pointillées sont des voisins qui agissent là où elle ne peut pas les voir.</p>`,
       v: 0.2, slider: false, run: false, place: false, need: true, keep: true, highlightSeen: true
@@ -507,7 +523,8 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     document.getElementById("run").disabled = !!st.timer;
     document.getElementById("run").textContent = st.ran ? "Relancer" : "Lancer l'année";
     document.getElementById("prev").disabled = st.step === 0;
-    document.getElementById("next").disabled = st.step === STEPS.length - 1;
+    document.getElementById("next").hidden = st.step === STEPS.length - 1;
+    document.getElementById("nextChap").hidden = st.step !== STEPS.length - 1;
     document.getElementById("next").textContent = st.step === STEPS.length - 2 ? "Terminer" : "Suivant";
   }
 
@@ -545,7 +562,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     // Step 4 keeps the quiet year from step 3 on screen; if the viewer skipped it, settle that year instantly.
     if (s.keep) {
       stop();
-      if (!(prevStep === 2 && st.ran)) { st.starters.clear(); seed(); while (tick()) {} st.week = 0; st.ran = true; }
+      if (!(prevStep === 2 && st.ran)) { st.starters.clear(); seed(); let w = 0; while (tick()) w++; st.week = w; st.ran = true; }
       st.fresh = new Set();
       paint();
       setResult(`${countActing()} sur 60 agissent, mais les gens croient que seulement ${document.getElementById("sSeen").textContent} de leurs voisins agissent.`);

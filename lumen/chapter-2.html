@@ -91,6 +91,23 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-cont
 button.act, button.ghost { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; cursor: pointer; border: 1px solid transparent; }
 button.act { background: var(--moss); color: var(--bg); }
 button.act:disabled { opacity: 0.5; cursor: default; }
+a.act { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; background: var(--moss); color: var(--bg); text-decoration: none; display: inline-block; }
+a.act:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.balance { display: flex; flex-direction: column; gap: 5px; }
+.bal-text { font-size: 0.88rem; font-weight: 600; }
+.bal-bar { position: relative; height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; display: flex; }
+.bal-bar i { display: block; height: 100%; transition: width .2s ease; }
+.bal-bar i.bad { background: var(--terra); }
+.bal-bar i.good { background: var(--moss); margin-left: auto; }
+.bal-mark { position: absolute; top: -2px; bottom: -2px; left: 66.67%; width: 3px; margin-left: -1.5px; background: var(--ink); }
+.bal-note { font-size: 0.76rem; color: var(--muted); }
+.plot { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+.plot svg { width: 100%; height: auto; display: block; }
+.plot-cap { margin: 0; font-size: 0.85rem; font-weight: 500; }
+.plot-cap:empty { display: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.76rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend svg { width: 18px; height: 18px; flex: none; }
 button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 button.ghost:disabled { opacity: 0.45; cursor: default; }
 button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
@@ -129,7 +146,7 @@ button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--
 .lessons li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 7px; height: 7px; border-radius: 50%; background: var(--moss); }
 a { color: var(--teal); }
 footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-height: 1.5; }
-@media (prefers-reduced-motion: reduce) { .stat .bar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .stat .bar i, .bal-bar i { transition: none; } }
 </style>
 
 </head>
@@ -150,12 +167,17 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
         <div class="slider-row" id="doseRow">
           <label for="dose">Bad headlines per week</label>
           <output id="doseOut" for="dose">0</output>
-          <input type="range" id="dose" min="0" max="3" step="0.25" value="0">
+          <input type="range" id="dose" min="0" max="5" step="0.25" value="0">
         </div>
         <div class="slider-row" id="goodRow">
-          <label for="good">Stories of people acting, per week</label>
+          <label for="good">Solution stories per week</label>
           <output id="goodOut" for="good">0</output>
-          <input type="range" id="good" min="0" max="2" step="0.25" value="0">
+          <input type="range" id="good" min="0" max="5" step="0.25" value="0">
+        </div>
+        <div class="balance" id="balance" hidden>
+          <span class="bal-text" id="balText"></span>
+          <div class="bal-bar"><i class="bad" id="balBad"></i><i class="good" id="balGood"></i><span class="bal-mark"></span></div>
+          <span class="bal-note">The mark is the tipping point: about 1 solution story for every 2 bad headlines.</span>
         </div>
         <div class="btns">
           <button class="act" id="run">Play a year</button>
@@ -163,9 +185,14 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
         </div>
       </div>
       <p class="result" id="result"></p>
+      <div class="plot" id="plotBox" hidden>
+        <svg id="plot" viewBox="0 0 480 160" role="img" aria-label="Your years so far"></svg>
+        <p class="plot-cap" id="plotCap"></p>
+      </div>
       <div class="nav">
         <button class="ghost" id="prev">Back</button>
         <button class="act" id="next">Next</button>
+        <a class="act" id="nextChap" href="chapter-3.html" hidden>Chapter 3 &rarr;</a>
       </div>
     </section>
 
@@ -177,9 +204,15 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
         </div>
         <div class="news">
           <div class="card bad" id="badCard"><span class="k">Bad news</span><span id="badText">Nothing yet</span></div>
-          <div class="card good" id="goodCard"><span class="k">People acting</span><span id="goodText">Nothing yet</span></div>
+          <div class="card good" id="goodCard"><span class="k">Solutions</span><span id="goodText">Nothing yet</span></div>
         </div>
         <svg id="town" role="group" aria-label="The 60 people of Lumen"></svg>
+        <div class="legend" aria-label="Legend">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="11" r="7" style="fill:var(--moss-soft);stroke:var(--moss)" stroke-width="1.5"/><circle cx="6" cy="22" r="1.8" style="fill:var(--moss)"/><circle cx="12" cy="22" r="1.8" style="fill:var(--moss)"/><circle cx="18" cy="22" r="1.8" style="fill:var(--moss)"/></svg>Acting, with hearts left</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" style="fill:var(--terra-soft);stroke:var(--terra)" stroke-width="1.5"/></svg>Burned out</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" style="fill:var(--stone);stroke:var(--stone-edge)" stroke-width="1.5"/><circle cx="12" cy="12" r="2.5" style="fill:var(--gold)"/></svg>Steady</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" style="fill:var(--doom);stroke:var(--stone-edge)" stroke-width="1.5"/></svg>Doomer</span>
+        </div>
         <div class="tip" id="tip" hidden></div>
       </div>
       <div class="stats">
@@ -242,14 +275,16 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     "Glaciers melting faster than expected", "Coral bleaching spreads again", "Emissions hit a new high", "Drought hits farmers for a third year"
   ];
   const GOOD = [
-    "A neighbourhood turns a parking lot into a food forest", "A school switches its buses to electric",
-    "Farmers replant hedgerows and the birds come back", "The city opens a protected bike lane network",
-    "Neighbours buy a solar farm together", "The river is clean enough to swim in again", "Students open a repair café",
-    "Volunteers plant 10,000 trees", "Fishers and scientists regrow a kelp forest", "The library starts lending tools"
+    "A country runs its whole grid on renewables for a week", "A city closes its centre to cars, and the air clears",
+    "Farmers across a region switch to regenerative methods", "A drained wetland fills with birds again",
+    "A whole coastline becomes a marine reserve", "A country's emissions fall for the fifth year in a row",
+    "A neighbourhood turns a parking lot into a food forest", "A school district switches its buses to electric",
+    "Neighbours buy a solar farm together", "The river is clean enough to swim in again",
+    "A city plants a million trees", "Students open a repair café"
   ];
 
   const st = {
-    step: 0, D: 0, G: 0, week: -1, timer: null, ran: false, hover: -1,
+    step: 0, D: 0, G: 0, week: -1, timer: null, ran: false, hover: -1, tries: {},
     acting: [], hearts: [], burned: [], hist: [], lastBad: "", lastGood: "", badNow: 0, goodNow: 0, badTotal: 0, goodTotal: 0
   };
 
@@ -279,7 +314,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
 
   // One week: bad headlines drain a heart from everyone acting (except Steadies, who act on values),
   // and wake up people not yet acting (they need one fewer neighbour that week).
-  // Stories of people acting count like one more neighbour seen acting, for everyone.
+  // Each solution story gives everyone acting a heart back, and counts like one more neighbour seen acting, for everyone.
   // Seeing enough neighbours act refills a heart; seeing many refills two. At zero hearts, a person burns out
   // and needs 2 more neighbours than before to come back.
   function step(w) {
@@ -295,7 +330,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       const s = seen[i];
       if (need === 0) { na[i] = true; nh[i] = CAP; continue; }
       if (st.acting[i]) {
-        const refill = (s >= need ? 1 : 0) + (s >= need + BONUS ? 1 : 0);
+        const refill = (s >= need ? 1 : 0) + (s >= need + BONUS ? 1 : 0) + G;
         nh[i] = Math.min(CAP, st.hearts[i] + refill - H);
         if (nh[i] <= 0) { na[i] = false; nh[i] = 0; st.burned[i] = true; }
       } else {
@@ -388,7 +423,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     else if (p.kind === "steady") line = "Acts on their values. Bad news hurts, but it never makes them stop.";
     else if (st.acting[i]) {
       const refill = s >= n + BONUS ? "two hearts back each week" : s >= n ? "one heart back each week" : "no hearts back";
-      line = `Acting, ${st.hearts[i]} of 3 hearts. Sees ${s} neighbours acting and needs ${n}, so they get ${refill}.`;
+      line = `Acting, ${st.hearts[i]} of 3 hearts. Sees ${s} neighbours acting and needs ${n}, so they get ${refill}, plus one for each solution story.`;
     } else if (st.burned[i]) line = `Burned out. To come back they now need to see ${n + BURN_PENALTY} neighbours acting. They see ${s}.`;
     else line = `Not acting yet. Needs to see ${n} neighbours acting, sees ${s}. A bad headline lowers that to ${Math.max(0, n - 1)} for a week.`;
     tip.innerHTML = `<b>${KIND[p.kind]}</b>. ${line}`;
@@ -437,6 +472,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
   function finish() {
     st.badNow = 0; st.goodNow = 0;
     const s = STEPS[st.step];
+    if (s.plot) { (st.tries[st.step] = st.tries[st.step] || []).push({ x: s.plot === "D" ? st.D : st.G, y: end() }); drawPlot(); }
     if (s.onFinish) setResult(...[].concat(s.onFinish()));
     updateButtons();
   }
@@ -482,8 +518,8 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       title: "Is fear the problem?",
       body: `<p>No. Eco-anxiety is what caring feels like, and bad news carries real information.</p>
              <p>In Lumen, a bad headline also <b>wakes people up</b>: for that week, people who aren't acting yet need to see one fewer neighbour to join in.</p>
-             <p>Try different doses. Start at zero, then go up a step at a time.</p>`,
-      D: 0, G: 0, dose: true, good: false, run: true,
+             <p>Try different doses: start at 0, then 1, then 1.25. Each year you play adds a dot to the chart below.</p>`,
+      D: 0, G: 0, dose: true, good: false, run: true, plot: "D",
       onFinish: () => {
         const k = collapseWeek();
         if (st.D === 0) return `No bad news, no change. Lumen stays at ${end()}. Nobody new woke up.`;
@@ -495,23 +531,23 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     {
       title: "Refill the town",
       body: `<p>You can't switch the news off. The bad news is back at <b>2 a week</b>.</p>
-             <p>What you can add is <b>stories of people already acting</b>: a school, a farm, a street somewhere else. In Lumen, each story counts like one more neighbour seen acting, for everyone.</p>
-             <p>How many stories a week does it take to keep at least 40 people going?</p>`,
-      D: 2, G: 0, dose: false, good: true, run: true,
+             <p>What you can add is <b>stories of solutions</b>: people, cities and countries already fixing things. In Lumen, each story gives everyone acting a heart back, and counts like one more neighbour seen acting.</p>
+             <p>How many solution stories a week does it take to keep at least 45 people going? Watch the balance as you go.</p>`,
+      D: 2, G: 0, dose: false, good: true, run: true, plot: "G",
       onFinish: () => {
-        if (end() >= 40) return [`With ${fmt(st.G)} stories a week against 2 bad headlines, ${end()} people are still acting at the end of the year. The stories didn't stop the bad news. They refilled what it drained.`, "win"];
-        if (end() >= 15) return `${end()} people still acting. Better, but the town is thinning out. Add a little more.`;
-        return [`Only ${end()} left. Not enough to refill what the news drains. Try more stories.`, "loss"];
+        if (end() >= 45) return [`With ${fmt(st.G)} solution stories a week against 2 bad headlines, ${end()} people are still acting at the end of the year. The stories didn't stop the bad news. They refilled what it drained.`, "win"];
+        if (end() >= 20) return `${end()} people still acting. Better, but the town is thinning out. Add a little more.`;
+        return [`Only ${end()} left. Not enough to refill what the news drains. Try more solution stories.`, "loss"];
       }
     },
     {
       title: "Your turn",
       body: `<p>Both dials are yours. Find the edges: how much bad news can Lumen take, and how much does each story buy back?</p>
-             <p>One challenge to try: at <b>3 bad headlines a week</b>, keep at least <b>20 people</b> acting by the end of the year.</p>`,
-      D: 3, G: 0, dose: true, good: true, run: true,
+             <p>One challenge to try: at <b>4 bad headlines a week</b>, keep at least <b>45 people</b> acting by the end of the year.</p>`,
+      D: 4, G: 0, dose: true, good: true, run: true,
       onFinish: () => {
         const k = collapseWeek();
-        if (st.D >= 3 && end() >= 20) return [`${end()} people still acting under 3 headlines a week. You held the line with ${fmt(st.G)} stories a week.`, "win"];
+        if (st.D >= 4 && end() >= 45) return [`${end()} people still acting under ${fmt(st.D)} headlines a week. You held the line with ${fmt(st.G)} solution stories a week.`, "win"];
         if (k === null) return [`${end()} of 60 acting at the end of the year.`, "win"];
         return `${end()} of 60 acting. The town peaked at ${peak()} and fell below 20 in week ${k + 1}.`;
       }
@@ -521,15 +557,75 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       body: `<ul class="lessons">
                <li><b>Some bad news wakes people up.</b> Eco-anxiety is a sign that you care, not a malfunction.</li>
                <li><b>Too much, with nothing to refill it, and even people who care burn out.</b> Quitting spreads the same way hope does: one neighbour at a time.</li>
-               <li><b>What refills hope is seeing people act:</b> your neighbours, and stories of people already doing it.</li>
+               <li><b>What refills hope is seeing people act:</b> your neighbours, and stories of solutions. About one solution story for every two bad headlines kept Lumen standing.</li>
                <li><b>The Steadies never left.</b> When the storm passes, the town rebuilds around them.</li>
              </ul>
              <p>That's the job of <a href="/">Hope Library</a>: a shelf of stories that refill the hearts.</p>
              <p><a href="chapter-3.html"><b>Play Chapter 3: Small wins.</b></a> Why action that shows results quickly keeps people going.</p>`,
       D: 1, G: 0.5, dose: true, good: true, run: true,
-      onFinish: () => `${end()} of 60 acting after a year at ${fmt(st.D)} headlines and ${fmt(st.G)} stories a week.`
+      onFinish: () => `${end()} of 60 acting after a year at ${fmt(st.D)} headlines and ${fmt(st.G)} solution stories a week.`
     }
   ];
+
+  // ---------- your years: one dot per year played ----------
+  const plotSvg = document.getElementById("plot"), plotCap = document.getElementById("plotCap");
+  function drawPlot() {
+    const s = STEPS[st.step], box = document.getElementById("plotBox");
+    box.hidden = !s.plot;
+    if (!s.plot) return;
+    plotSvg.innerHTML = "";
+    const L = 40, Rr = 468, Tp = 10, B = 122, X = v => L + v / 5 * (Rr - L), Y = v => B - v / 60 * (B - Tp);
+    const ink = css("--muted"), line = css("--line");
+    for (const v of [0, 30, 60]) {
+      mk("line", { x1: L, y1: Y(v), x2: Rr, y2: Y(v), stroke: line, "stroke-width": 1 }, plotSvg);
+      const t = mk("text", { x: L - 6, y: Y(v) + 3.5, "text-anchor": "end", "font-size": 9, fill: ink, "font-family": "IBM Plex Mono, monospace" }, plotSvg); t.textContent = v;
+    }
+    for (let v = 0; v <= 5; v++) {
+      const t = mk("text", { x: X(v), y: B + 13, "text-anchor": "middle", "font-size": 9, fill: ink, "font-family": "IBM Plex Mono, monospace" }, plotSvg); t.textContent = v;
+    }
+    const xl = mk("text", { x: (L + Rr) / 2, y: B + 28, "text-anchor": "middle", "font-size": 10, fill: ink }, plotSvg);
+    xl.textContent = s.plot === "D" ? "Bad headlines per week" : "Solution stories per week (bad news at 2 a week)";
+    const yl = mk("text", { x: 10, y: (Tp + B) / 2, "text-anchor": "middle", "font-size": 10, fill: ink, transform: `rotate(-90 10 ${(Tp + B) / 2})` }, plotSvg);
+    yl.textContent = "Acting at year end";
+    const tries = st.tries[st.step] || [];
+    for (const d of tries) {
+      const col = d.y >= 45 ? css("--moss") : d.y < 20 ? css("--terra") : css("--gold");
+      mk("circle", { cx: X(d.x), cy: Y(d.y), r: 5, fill: col, stroke: css("--panel"), "stroke-width": 1.5 }, plotSvg);
+    }
+    plotCap.textContent = plotCaption(s, tries);
+  }
+  function plotCaption(s, tries) {
+    if (!tries.length) return "";
+    const ok = tries.filter(d => d.y >= 45), bad = tries.filter(d => d.y < 20);
+    if (s.plot === "D") {
+      if (ok.length && bad.length) {
+        const a = Math.max(...ok.map(d => d.x)), above = bad.filter(d => d.x > a);
+        if (above.length) { const b = Math.min(...above.map(d => d.x)); if (b - a <= 0.5) return `The tipping point: between ${fmt(a)} and ${fmt(b)} bad headlines a week, Lumen goes from ${ok.find(d => d.x === a).y} people to ${above.find(d => d.x === b).y}.`; }
+      }
+      return "Each year you play adds a dot. Look for the edge.";
+    }
+    if (ok.length) {
+      const a = Math.min(...ok.map(d => d.x)), below = tries.filter(d => d.y < 45 && d.x < a);
+      if (below.length) { const b = Math.max(...below.map(d => d.x)); if (a - b <= 0.5) return `The tipping point: between ${fmt(b)} and ${fmt(a)} stories a week, Lumen goes from ${below.find(d => d.x === b).y} people to ${ok.find(d => d.x === a).y}. That's about 1 story for every 2 bad headlines.`; }
+    }
+    return "Each year you play adds a dot. Look for the edge.";
+  }
+  function ratioText() {
+    if (!st.D && !st.G) return "No news at all";
+    if (!st.G) return "Only bad news";
+    if (!st.D) return "Only solutions";
+    const r = st.D / st.G;
+    return r >= 1 ? `1 solution story for every ${fmt(Math.round(r * 10) / 10)} bad headlines` : `${fmt(Math.round(10 / r) / 10)} solution stories for every bad headline`;
+  }
+  function drawBalance() {
+    const s = STEPS[st.step], show = !!s.good;
+    document.getElementById("balance").hidden = !show;
+    if (!show) return;
+    const tot = st.D + st.G;
+    document.getElementById("balText").textContent = "Balance: " + ratioText();
+    document.getElementById("balBad").style.width = (tot ? st.D / tot * 100 : 0) + "%";
+    document.getElementById("balGood").style.width = (tot ? st.G / tot * 100 : 0) + "%";
+  }
 
   const stepsEl = document.getElementById("steps");
   STEPS.forEach((s, k) => {
@@ -542,7 +638,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
 
   const dose = document.getElementById("dose"), good = document.getElementById("good");
   const doseOut = document.getElementById("doseOut"), goodOut = document.getElementById("goodOut");
-  function syncSliders() { doseOut.textContent = fmt(st.D); goodOut.textContent = fmt(st.G); dose.value = st.D; good.value = st.G; }
+  function syncSliders() { doseOut.textContent = fmt(st.D); goodOut.textContent = fmt(st.G); dose.value = st.D; good.value = st.G; drawBalance(); }
   dose.addEventListener("input", () => { st.D = +dose.value; syncSliders(); if (!st.timer) resetTown(); });
   good.addEventListener("input", () => { st.G = +good.value; syncSliders(); if (!st.timer) resetTown(); });
 
@@ -556,7 +652,8 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     dose.disabled = !s.dose || !!st.timer;
     good.disabled = !s.good || !!st.timer;
     document.getElementById("prev").disabled = st.step === 0;
-    document.getElementById("next").disabled = st.step === STEPS.length - 1;
+    document.getElementById("next").hidden = st.step === STEPS.length - 1;
+    document.getElementById("nextChap").hidden = st.step !== STEPS.length - 1;
     document.getElementById("next").textContent = st.step === STEPS.length - 2 ? "Finish" : "Next";
   }
 
@@ -573,6 +670,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     document.getElementById("goodRow").hidden = k < 3;
     document.getElementById("doseRow").classList.toggle("locked", !s.dose);
     document.getElementById("goodRow").classList.toggle("locked", !s.good);
+    drawBalance(); drawPlot();
     resetTown();
   }
 

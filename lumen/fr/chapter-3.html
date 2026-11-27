@@ -94,6 +94,11 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-cont
 button.act, button.ghost { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; cursor: pointer; border: 1px solid transparent; }
 button.act { background: var(--moss); color: var(--bg); }
 button.act:disabled { opacity: 0.5; cursor: default; }
+a.act { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; background: var(--moss); color: var(--bg); text-decoration: none; display: inline-block; }
+a.act:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.76rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend svg { width: 18px; height: 18px; flex: none; }
 button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 button.ghost:disabled { opacity: 0.45; cursor: default; }
 button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
@@ -167,7 +172,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
         <div class="slider-row" id="milesRow">
           <label for="miles">Étapes sur le chemin de l'objectif</label>
           <output id="milesOut" for="miles">1</output>
-          <input type="range" id="miles" min="1" max="30" step="1" value="1">
+          <input type="range" id="miles" min="1" max="15" step="1" value="1">
         </div>
         <div class="slider-row" id="doseRow">
           <label for="dose">Mauvais titres par semaine</label>
@@ -183,6 +188,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       <div class="nav">
         <button class="ghost" id="prev">Retour</button>
         <button class="act" id="next">Suivant</button>
+        <a class="act" id="nextChap" href="/" hidden>Retour à la Hope Library</a>
       </div>
     </section>
 
@@ -193,7 +199,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
           <span id="week">Avant le début de l'année</span>
         </div>
         <div class="goal">
-          <div class="goal-top"><b>Objectif : Lumen fonctionne à l'énergie propre</b><span id="goalPct">0 %</span></div>
+          <div class="goal-top"><b>Objectif : Lumen fonctionne à l'énergie propre</b><span id="goalPct">0 / 2 000 panneaux</span></div>
           <div class="track" id="track"><div class="fill" id="fill"></div></div>
         </div>
         <div class="news">
@@ -201,6 +207,11 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
           <div class="card win" id="winCard"><span class="k">Lumen l'a fait</span><span id="winText">Rien pour l'instant</span></div>
         </div>
         <svg id="town" role="group" aria-label="Les 60 personnes de Lumen"></svg>
+        <div class="legend" aria-label="Légende">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="11" r="7" style="fill:var(--moss-soft);stroke:var(--moss)" stroke-width="1.5"/><circle cx="6" cy="22" r="1.8" style="fill:var(--moss)"/><circle cx="12" cy="22" r="1.8" style="fill:var(--moss)"/><circle cx="18" cy="22" r="1.8" style="fill:var(--moss)"/></svg>Agit, avec des cœurs</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" style="fill:var(--moss-soft);stroke:var(--moss)" stroke-width="1.5"/><circle cx="12" cy="12" r="10.5" fill="none" style="stroke:var(--gold)" stroke-width="2"/></svg>Fête une étape</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" style="fill:var(--terra-soft);stroke:var(--terra)" stroke-width="1.5"/></svg>Épuisé</span>
+        </div>
         <div class="tip" id="tip" hidden></div>
       </div>
       <div class="stats">
@@ -220,6 +231,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
 (() => {
   const C = 10, R = 6, N = C * R, S = 44, CAP = 3, VIS = 0.7, WEEKS = 52, BONUS = 3, BURN_PENALTY = 2;
   const GOAL = 2000, WIN_SEEN = 2;
+  const num = n => n.toLocaleString("fr-CA");
   const SEED = 407;
 
   function rng(seed) {
@@ -446,7 +458,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     document.getElementById("sWins").textContent = `${st.wins} / ${st.K}`;
     document.getElementById("bWins").style.width = (st.wins / st.K * 100) + "%";
     const pct = st.progress / GOAL * 100;
-    document.getElementById("goalPct").textContent = Math.floor(pct) + " %";
+    document.getElementById("goalPct").textContent = `${num(st.progress)} / 2 000 panneaux`;
     fill.style.width = pct + "%";
     track.querySelectorAll(".tick").forEach((t, j) => t.classList.toggle("hit", j + 1 <= st.wins));
     document.getElementById("week").textContent = st.week < 0 ? "Avant le début de l'année" : `Semaine ${st.week + 1} sur ${WEEKS}`;
@@ -490,18 +502,18 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
   const fmt = x => (Math.round(x * 100) / 100).toString().replace(".", ",");
   const outcome = () => st.doneWeek !== null
     ? [`Objectif atteint à la semaine ${st.doneWeek}, avec ${end()} personnes qui agissent encore. ${st.K} étapes, ${st.K} fois où toute la ville a vu que ça marchait.`, "win"]
-    : [`L'année se termine à ${pctDone()} % de l'objectif, avec ${end()} personnes qui agissent. ${st.wins} étapes franchies sur ${st.K}.`, "loss"];
+    : [`L'année se termine avec ${num(st.progress)} panneaux posés sur 2 000 (${pctDone()} %), et ${end()} personnes qui agissent. ${st.wins} étapes franchies sur ${st.K}.`, "loss"];
 
   const RULES = `<ul class="rules">
       <li><span class="tag minus">Mauvais titre</span><span>Toujours 1,5 titre par semaine. Chacun coûte un cœur à tous ceux qui agissent.</span></li>
-      <li><span class="tag plus">Travail</span><span>Chaque personne qui agit ajoute une semaine de travail à l'objectif.</span></li>
-      <li><span class="tag win">Étape</span><span>Quand le travail franchit une étape, toute la ville le voit : tous ceux qui agissent récupèrent un cœur, et pendant une semaine ça compte comme 2 voisins de plus qui agissent.</span></li>
+      <li><span class="tag plus">Panneaux</span><span>Chaque personne qui agit pose un panneau solaire par semaine.</span></li>
+      <li><span class="tag win">Étape</span><span>Quand les panneaux franchissent une étape, toute la ville le voit : tous ceux qui agissent récupèrent un cœur, et pendant une semaine ça compte comme 2 voisins de plus qui agissent.</span></li>
     </ul>`;
 
   const STEPS = [
     {
       title: "Un objectif qui en vaut la peine",
-      body: `<p>Lumen se donne un vrai objectif : <b>faire fonctionner toute la ville à l'énergie propre</b>. Il faudra <b>2 000 semaines de travail</b>. Avec 45 personnes qui agissent, ça fait environ 44 semaines : ça tient dans une année.</p>
+      body: `<p>Lumen se donne un vrai objectif : <b>faire fonctionner toute la ville à l'énergie propre</b>. Ça veut dire poser <b>2 000 panneaux solaires</b>. Chaque personne qui agit en pose un par semaine. Avec 45 personnes, ça fait environ 44 semaines : ça tient dans une année.</p>
              <p>Les nouvelles ne se sont pas arrêtées. Elles sont à 1,5 mauvais titre par semaine, assez pour couler la ville au chapitre 2.</p>${RULES}`,
       D: 1.5, K: 1, miles: false, dose: false, run: false
     },
@@ -511,7 +523,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
              <p>Jouez une année.</p>`,
       D: 1.5, K: 1, miles: false, dose: false, run: true,
       onFinish: () => st.doneWeek !== null ? outcome() :
-        [`L'année se termine à ${pctDone()} % de l'objectif. Les gens ont manqué de cœurs bien avant la ligne d'arrivée, sans jamais voir quoi que ce soit fonctionner.`, "loss"]
+        [`L'année se termine avec ${num(st.progress)} panneaux posés sur 2 000 (${pctDone()} %). Les gens ont manqué de cœurs bien avant la ligne d'arrivée, sans jamais voir quoi que ce soit fonctionner.`, "loss"]
     },
     {
       title: "Découper en victoires",
@@ -521,18 +533,18 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       onFinish: () => {
         if (st.doneWeek !== null) return [`${st.K} étapes : objectif atteint à la semaine ${st.doneWeek}. Le grand objectif n'a pas changé. La ville a simplement pu sentir, en chemin, que ça marchait.`, "win"];
         if (st.K === 1) return outcome();
-        return [`${st.K} étapes : ${pctDone()} % de l'objectif. Les victoires arrivaient trop loin l'une de l'autre pour recharger les cœurs. Essayez-en plus.`, "loss"];
+        return [`${st.K} étapes : ${num(st.progress)} panneaux sur 2 000 (${pctDone()} %). Les victoires arrivaient trop loin l'une de l'autre pour recharger les cœurs. Essayez-en plus.`, "loss"];
       }
     },
     {
       title: "À vous de jouer",
       body: `<p>Les deux curseurs sont à vous.</p>
-             <p>Un défi : à <b>2 mauvais titres par semaine</b>, la tempête qui a vidé Lumen au chapitre 2, pouvez-vous quand même mener la ville à l'énergie propre en un an ?</p>`,
-      D: 2, K: 1, miles: true, dose: true, run: true,
+             <p>Un défi : atteindre l'objectif ne suffit pas si tout le monde arrive épuisé. À 1,5 mauvais titre par semaine, atteignez l'objectif avec <b>au moins 40 personnes encore en mouvement</b>.</p>`,
+      D: 1.5, K: 1, miles: true, dose: true, run: true,
       onFinish: () => {
-        const r = outcome();
-        if (st.doneWeek !== null && st.D >= 2) r[0] = `Réussi à la semaine ${st.doneWeek} sous ${fmt(st.D)} titres par semaine, avec ${st.K} étapes. ` + r[0].split(". ").slice(1).join(". ");
-        return r;
+        if (st.doneWeek !== null && end() >= 40) return [`Objectif atteint à la semaine ${st.doneWeek}, avec ${end()} personnes encore en mouvement et ${st.K} étapes. Défi relevé.`, "win"];
+        if (st.doneWeek !== null) return [`Objectif atteint à la semaine ${st.doneWeek}, mais il ne reste que ${end()} personnes debout. Essayez plus d'étapes.`, "loss"];
+        return outcome();
       }
     },
     {
@@ -580,7 +592,8 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     miles.disabled = !s.miles || !!st.timer;
     dose.disabled = !s.dose || !!st.timer;
     document.getElementById("prev").disabled = st.step === 0;
-    document.getElementById("next").disabled = st.step === STEPS.length - 1;
+    document.getElementById("next").hidden = st.step === STEPS.length - 1;
+    document.getElementById("nextChap").hidden = st.step !== STEPS.length - 1;
     document.getElementById("next").textContent = st.step === STEPS.length - 2 ? "Terminer" : "Suivant";
   }
 

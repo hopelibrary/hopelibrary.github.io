@@ -94,6 +94,11 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-cont
 button.act, button.ghost { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; cursor: pointer; border: 1px solid transparent; }
 button.act { background: var(--moss); color: var(--bg); }
 button.act:disabled { opacity: 0.5; cursor: default; }
+a.act { font: 600 0.9rem var(--body); border-radius: 999px; padding: 9px 18px; background: var(--moss); color: var(--bg); text-decoration: none; display: inline-block; }
+a.act:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.76rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend svg { width: 18px; height: 18px; flex: none; }
 button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 button.ghost:disabled { opacity: 0.45; cursor: default; }
 button.act:focus-visible, button.ghost:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
@@ -167,7 +172,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
         <div class="slider-row" id="milesRow">
           <label for="miles">Milestones on the way to the goal</label>
           <output id="milesOut" for="miles">1</output>
-          <input type="range" id="miles" min="1" max="30" step="1" value="1">
+          <input type="range" id="miles" min="1" max="15" step="1" value="1">
         </div>
         <div class="slider-row" id="doseRow">
           <label for="dose">Bad headlines per week</label>
@@ -183,6 +188,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       <div class="nav">
         <button class="ghost" id="prev">Back</button>
         <button class="act" id="next">Next</button>
+        <a class="act" id="nextChap" href="/" hidden>Back to Hope Library</a>
       </div>
     </section>
 
@@ -193,7 +199,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
           <span id="week">Before the year starts</span>
         </div>
         <div class="goal">
-          <div class="goal-top"><b>Goal: Lumen runs on clean energy</b><span id="goalPct">0%</span></div>
+          <div class="goal-top"><b>Goal: Lumen runs on clean energy</b><span id="goalPct">0 / 2,000 panels</span></div>
           <div class="track" id="track"><div class="fill" id="fill"></div></div>
         </div>
         <div class="news">
@@ -201,6 +207,11 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
           <div class="card win" id="winCard"><span class="k">Lumen did it</span><span id="winText">Nothing yet</span></div>
         </div>
         <svg id="town" role="group" aria-label="The 60 people of Lumen"></svg>
+        <div class="legend" aria-label="Legend">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="11" r="7" style="fill:var(--moss-soft);stroke:var(--moss)" stroke-width="1.5"/><circle cx="6" cy="22" r="1.8" style="fill:var(--moss)"/><circle cx="12" cy="22" r="1.8" style="fill:var(--moss)"/><circle cx="18" cy="22" r="1.8" style="fill:var(--moss)"/></svg>Acting, with hearts left</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" style="fill:var(--moss-soft);stroke:var(--moss)" stroke-width="1.5"/><circle cx="12" cy="12" r="10.5" fill="none" style="stroke:var(--gold)" stroke-width="2"/></svg>Celebrating a milestone</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" style="fill:var(--terra-soft);stroke:var(--terra)" stroke-width="1.5"/></svg>Burned out</span>
+        </div>
         <div class="tip" id="tip" hidden></div>
       </div>
       <div class="stats">
@@ -220,6 +231,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
 (() => {
   const C = 10, R = 6, N = C * R, S = 44, CAP = 3, VIS = 0.7, WEEKS = 52, BONUS = 3, BURN_PENALTY = 2;
   const GOAL = 2000, WIN_SEEN = 2;
+  const num = n => n.toLocaleString("en-US");
   const SEED = 407;
 
   function rng(seed) {
@@ -446,7 +458,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     document.getElementById("sWins").textContent = `${st.wins} / ${st.K}`;
     document.getElementById("bWins").style.width = (st.wins / st.K * 100) + "%";
     const pct = st.progress / GOAL * 100;
-    document.getElementById("goalPct").textContent = Math.floor(pct) + "%";
+    document.getElementById("goalPct").textContent = `${num(st.progress)} / 2,000 panels`;
     fill.style.width = pct + "%";
     track.querySelectorAll(".tick").forEach((t, j) => t.classList.toggle("hit", j + 1 <= st.wins));
     document.getElementById("week").textContent = st.week < 0 ? "Before the year starts" : `Week ${st.week + 1} of ${WEEKS}`;
@@ -490,18 +502,18 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
   const fmt = x => (Math.round(x * 100) / 100).toString();
   const outcome = () => st.doneWeek !== null
     ? [`Goal reached in week ${st.doneWeek}, with ${end()} people still acting. ${st.K} milestones, ${st.K} times the whole town saw it working.`, "win"]
-    : [`The year ends at ${pctDone()}% of the goal, with ${end()} people acting. ${st.wins} of ${st.K} milestones reached.`, "loss"];
+    : [`The year ends with ${num(st.progress)} of 2,000 panels up (${pctDone()}%), and ${end()} people acting. ${st.wins} of ${st.K} milestones reached.`, "loss"];
 
   const RULES = `<ul class="rules">
       <li><span class="tag minus">Bad news</span><span>Still 1.5 headlines a week. Each costs everyone acting one heart.</span></li>
-      <li><span class="tag plus">Work</span><span>Each person acting adds one week of work to the goal.</span></li>
-      <li><span class="tag win">Milestone</span><span>When the work reaches a milestone, the whole town sees it: everyone acting gets a heart back, and for a week it counts like 2 more neighbours acting.</span></li>
+      <li><span class="tag plus">Panels</span><span>Each person acting puts up one solar panel a week.</span></li>
+      <li><span class="tag win">Milestone</span><span>When the panels reach a milestone, the whole town sees it: everyone acting gets a heart back, and for a week it counts like 2 more neighbours acting.</span></li>
     </ul>`;
 
   const STEPS = [
     {
       title: "A goal worth having",
-      body: `<p>Lumen sets itself a real goal: <b>run the whole town on clean energy</b>. It will take <b>2,000 weeks of work</b>. With 45 people acting, that's about 44 weeks, so it fits in a year.</p>
+      body: `<p>Lumen sets itself a real goal: <b>run the whole town on clean energy</b>. That means putting up <b>2,000 solar panels</b>. Each person acting puts up one a week. With 45 people, that's about 44 weeks, so it fits in a year.</p>
              <p>The news hasn't stopped. It's at 1.5 bad headlines a week, enough to sink the town in Chapter 2.</p>${RULES}`,
       D: 1.5, K: 1, miles: false, dose: false, run: false
     },
@@ -511,7 +523,7 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
              <p>Play a year.</p>`,
       D: 1.5, K: 1, miles: false, dose: false, run: true,
       onFinish: () => st.doneWeek !== null ? outcome() :
-        [`The year ends at ${pctDone()}% of the goal. People ran out of hearts long before the finish line, and they never got to see anything work.`, "loss"]
+        [`The year ends with ${num(st.progress)} of 2,000 panels up (${pctDone()}%). People ran out of hearts long before the finish line, and they never got to see anything work.`, "loss"]
     },
     {
       title: "Break it into wins",
@@ -521,18 +533,18 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
       onFinish: () => {
         if (st.doneWeek !== null) return [`${st.K} milestones: goal reached in week ${st.doneWeek}. The big goal didn't change. The town just got to feel it working along the way.`, "win"];
         if (st.K === 1) return outcome();
-        return [`${st.K} milestones: ${pctDone()}% of the goal. The wins came too far apart to refill the hearts. Try more.`, "loss"];
+        return [`${st.K} milestones: ${num(st.progress)} of 2,000 panels (${pctDone()}%). The wins came too far apart to refill the hearts. Try more.`, "loss"];
       }
     },
     {
       title: "Your turn",
       body: `<p>Both dials are yours now.</p>
-             <p>A challenge: at <b>2 bad headlines a week</b>, the storm that emptied Lumen in Chapter 2, can you still get the town to clean energy within the year?</p>`,
-      D: 2, K: 1, miles: true, dose: true, run: true,
+             <p>A challenge: reaching the goal isn't enough if everyone is exhausted at the finish line. At 1.5 bad headlines a week, reach the goal with <b>at least 40 people still going</b>.</p>`,
+      D: 1.5, K: 1, miles: true, dose: true, run: true,
       onFinish: () => {
-        const r = outcome();
-        if (st.doneWeek !== null && st.D >= 2) r[0] = `Done in week ${st.doneWeek} under ${fmt(st.D)} headlines a week, with ${st.K} milestones. ` + r[0].split(". ").slice(1).join(". ");
-        return r;
+        if (st.doneWeek !== null && end() >= 40) return [`Goal reached in week ${st.doneWeek} with ${end()} people still going, using ${st.K} milestones. Challenge won.`, "win"];
+        if (st.doneWeek !== null) return [`Goal reached in week ${st.doneWeek}, but only ${end()} people are still standing. Try more milestones.`, "loss"];
+        return outcome();
       }
     },
     {
@@ -580,7 +592,8 @@ footer.src { font-size: 0.78rem; color: var(--muted); max-width: 80ch; line-heig
     miles.disabled = !s.miles || !!st.timer;
     dose.disabled = !s.dose || !!st.timer;
     document.getElementById("prev").disabled = st.step === 0;
-    document.getElementById("next").disabled = st.step === STEPS.length - 1;
+    document.getElementById("next").hidden = st.step === STEPS.length - 1;
+    document.getElementById("nextChap").hidden = st.step !== STEPS.length - 1;
     document.getElementById("next").textContent = st.step === STEPS.length - 2 ? "Finish" : "Next";
   }
 
